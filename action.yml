@@ -107,10 +107,13 @@ runs:
         mkdir "${{ github.action_path }}/output"
         cp build/*.geode "${{ github.action_path }}/output"
 
+        OUTPUT_DIR="${{ github.action_path }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
-          OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${{ github.action_path }}/output")
+          OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$OUTPUT_DIR")
         elif [ ${{ steps.platform.outputs.id }} = "win" ]; then
           OUTPUT_DIR=$(cygpath -wa "$OUTPUT_DIR")
+        else
+          OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
         fi
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
     

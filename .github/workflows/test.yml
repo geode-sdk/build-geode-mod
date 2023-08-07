@@ -26,13 +26,9 @@ jobs:
         with:
           repository: geode-sdk/textureldr
           path: textureldr
-    
-      - uses: actions/checkout@v3
-        with:
-          path: myawesome
 
       - name: Build the mod
-        uses: ./myawesome
+        uses: geode-sdk/build-geode-mod@main
         with:
           sdk: nightly
           build-config: RelWithDebInfo
@@ -45,11 +41,8 @@ jobs:
     needs: ['build']
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          path: myawesome
 
-      - uses: ./myawesome/combine.yml
+      - uses: geode-sdk/build-geode-mod/combine.yml@main
         id: build
 
       - uses: actions/upload-artifact@v3
