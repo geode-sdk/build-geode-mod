@@ -95,7 +95,6 @@ runs:
       shell: bash
       run: |
         cd "${{ inputs.path }}"
-        echo "is it still set $GEODE_SDK"
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-T host=x64 -A win32"
         else
