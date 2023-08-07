@@ -41,10 +41,24 @@ runs:
     - name: Combine them
       shell: bash
       run: |
-        chmod +x "${{ github.action_path }}/geode"
-
-    - run: ls -R
-      shell: bash
+        cd "${{ github.action_path }}"
+        chmod +x ./geode
+        mkdir out
+        MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
+        for mod in $MODS; do
+          PACKAGE_ARGS=""
+          if [ -f "./artifacts/geode-build-win/$mod" ]; then
+            PACKAGE_ARGS="$PACKAGE_ARGS \"./artifacts/geode-build-win/$mod\""
+          fi
+          if [ -f "./artifacts/geode-build-mac/$mod" ]; then
+            PACKAGE_ARGS="$PACKAGE_ARGS \"./artifacts/geode-build-mac/$mod\""
+          fi
+          # why does it merge into the first one instead of just an output..
+          FIRST="${PACKAGE_ARGS%% *}"
+          geode package merge $PACKAGE_ARGS
+          cp $FIRST out
+        done
+        echo "build-output=${{ github.action_path }}/out" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
