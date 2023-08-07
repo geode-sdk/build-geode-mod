@@ -1,0 +1,34 @@
+name: Test the action
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    name: Build TextureLoader
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: geode-sdk/textureldr
+          path: textureldr
+    
+      - uses: actions/checkout@v3
+        with:
+          path: myawesome
+
+      - name: Build the mod
+        id: geode
+        uses: ./myawesome
+        with:
+          sdk: nightly
+          build-config: RelWithDebInfo
+          path: textureldr
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mod
+          path: "${{ steps.geode.outputs.build-output }}/*.geode"

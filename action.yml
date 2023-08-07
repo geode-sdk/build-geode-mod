@@ -1,0 +1,108 @@
+name: Geode
+description: Builds a Geode mod
+inputs:
+  sdk:
+    description: Which version of the SDK to use, defaults to latest release. Use nightly to specify latest commit
+    required: false
+    default: latest
+  cli:
+    description: Which CLI version to use, defaults to latest release.
+    required: false
+    default: latest
+  configure-args:
+    description: Extra arguments passed to CMake when configuring.
+    required: false
+    default: ""
+  build-args:
+    description: Extra arguments passed to CMake when building.
+    required: false
+    default: ""
+  build-config:
+    description: Which build configuration to use. Defaults to Release
+    required: false
+    default: Release
+  path:
+    description: Path to the project which to build. Defaults to current directory.
+    required: false
+    default: ./
+outputs:
+  build-output:
+    description: A folder containing the built .geode file(s)
+    value: ${{ steps.build.outputs.output }}
+runs:
+  using: composite
+  steps:
+    - name: Detect platform
+      id: platform
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" = "Linux" ]; then ID=linux; elif [ "$RUNNER_OS" = "Windows" ]; then ID=win; elif [ "$RUNNER_OS" = "macOS" ]; then ID=mac; fi
+        echo "id=$ID" >> $GITHUB_OUTPUT
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+        
+    - name: Download CLI
+      uses: robinraju/release-downloader@v1.8
+      with:
+        repository: geode-sdk/cli
+        latest: ${{ inputs.cli == 'latest' }}
+        tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        tarBall: false
+        zipBall: false
+        fileName: "*-${{ steps.platform.outputs.id }}.zip"
+        extract: true
+        out-file-path: ${{ github.action_path }}
+
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+    
+    - name: Setup CLI
+      shell: bash
+      run: |
+        if [ ${{ steps.platform.outputs.id }} != "win" ]; then
+          chmod +x "${{ github.action_path }}/geode"
+        fi
+
+        geode sdk install "${{ github.action_path }}/geode-sdk-clone"
+        
+        # silly github actions wont refresh the env
+        export GEODE_SDK="${{ github.action_path }}/geode-sdk-clone"
+        echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
+
+        if [ "${{ inputs.sdk }}" == "latest" ]; then
+          SDK_VERSION=stable
+        else
+          SDK_VERSION=${{ inputs.sdk }}
+        fi
+        geode sdk update $SDK_VERSION
+        geode sdk install-binaries
+
+        export CPM_CACHE="${{ github.action_path }}/cpm-cache"
+        echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
+
+
+    - name: Run CMake and build
+      id: build
+      shell: bash
+      run: |
+        cd "${{ inputs.path }}"
+        echo "is it still set $GEODE_SDK"
+        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          CMAKE_EXTRA_ARGS="-T host=x64 -A win32"
+        else
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13"
+        fi
+        cmake -B build $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=On ${{ inputs.configure-args }}
+        cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
+
+        mkdir "${{ github.action_path }}/output"
+        cp build/*.geode "${{ github.action_path }}/output"
+
+        if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
+          OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${{ github.action_path }}/output")
+        elif [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          OUTPUT_DIR=$(cygpath -wa "$OUTPUT_DIR")
+        fi
+        echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
