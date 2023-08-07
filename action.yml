@@ -104,7 +104,8 @@ runs:
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.action_path }}/output"
-        cp build/*.geode "${{ github.action_path }}/output"
+        shopt -s globstar
+        cp build/**/*.geode "${{ github.action_path }}/output"
 
         OUTPUT_DIR="${{ github.action_path }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
