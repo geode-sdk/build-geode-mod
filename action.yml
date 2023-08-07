@@ -1,5 +1,6 @@
-name: Geode
+name: Build Geode mod
 description: Builds a Geode mod
+
 inputs:
   sdk:
     description: Which version of the SDK to use, defaults to latest release. Use nightly to specify latest commit
@@ -25,10 +26,16 @@ inputs:
     description: Path to the project which to build. Defaults to current directory.
     required: false
     default: ./
+  combine:
+    description: Set this to true if you plan on merging .geode files later. See the README for more info.
+    required: false
+    default: false
+
 outputs:
   build-output:
     description: A folder containing the built .geode file(s)
     value: ${{ steps.build.outputs.output }}
+
 runs:
   using: composite
   steps:
@@ -106,3 +113,10 @@ runs:
           OUTPUT_DIR=$(cygpath -wa "$OUTPUT_DIR")
         fi
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
+    
+    - name: Upload artifacts
+      if: ${{ inputs.combine }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: "geode-build-${{ steps.platform.outputs.id }}"
+        path: "${{ steps.build.outputs.output }}/*.geode"

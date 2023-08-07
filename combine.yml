@@ -1,0 +1,59 @@
+name: Combine Geode mods
+description: Combines the same Geode mod built for different platforms into a single file
+
+inputs:
+  cli:
+    description: Which CLI version to use, defaults to latest release.
+    required: false
+    default: latest
+  delete-artifacts:
+    description: Whether to delete temporary artifacts left by the build action.
+    required: false
+    default: true
+
+outputs:
+  build-output:
+    description: A folder containing the built .geode file(s)
+    value: ${{ steps.build.outputs.output }}
+
+runs:
+  using: composite
+  steps:
+    - name: Download CLI
+      uses: robinraju/release-downloader@v1.8
+      with:
+        repository: geode-sdk/cli
+        latest: ${{ inputs.cli == 'latest' }}
+        tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        tarBall: false
+        zipBall: false
+        fileName: "*-linux.zip"
+        extract: true
+        out-file-path: ${{ github.action_path }}
+
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+
+    - uses: actions/download-artifact@v3
+      with:
+        path: "${{ github.action_path }}/artifacts"
+    
+    - name: Combine them
+      shell: bash
+      run: |
+        chmod +x "${{ github.action_path }}/geode"
+
+    - run: ls -R
+      shell: bash
+
+    - uses: geekyeggo/delete-artifact@v2
+      if: ${{ inputs.delete-artifacts }}
+      with:
+          name: geode-build-win
+          failOnError: false
+        
+    - uses: geekyeggo/delete-artifact@v2
+      if: ${{ inputs.delete-artifacts }}
+      with:
+          name: geode-build-mac
+          failOnError: false
