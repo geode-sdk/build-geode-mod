@@ -65,7 +65,7 @@ To do this, make sure to set `combine: true` on the build action!
 ## Building a mod on mac and windows, and then combining it
 Full workflow:
 ```yml
-name: Build Geode mod
+name: Build Geode Mod
 
 on:
   workflow_dispatch:
@@ -76,6 +76,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         config:
         - name: Windows
