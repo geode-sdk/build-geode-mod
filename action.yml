@@ -72,6 +72,10 @@ runs:
           chmod +x "${{ github.action_path }}/geode"
         fi
 
+        export CLI_PROFILE="${{ github.action_path }}/cli-profile"
+        mkdir -p "$CLI_PROFILE/geode/mods"
+        geode profile add --name GithubActions "$CLI_PROFILE"
+
         geode sdk install "${{ github.action_path }}/geode-sdk-clone"
         
         # silly github actions wont refresh the env
