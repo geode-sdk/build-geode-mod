@@ -73,8 +73,11 @@ runs:
         fi
 
         export CLI_PROFILE="${{ github.action_path }}/cli-profile"
+        # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
-        geode profile add --name GithubActions "$CLI_PROFILE/uwu"
+        # for mac
+        mkdir -p "$CLI_PROFILE/GeometryDash/Contents/geode/mods"
+        geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash"
 
         geode sdk install "${{ github.action_path }}/geode-sdk-clone"
         
