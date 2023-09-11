@@ -76,8 +76,8 @@ runs:
         # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
         # for mac
-        mkdir -p "$CLI_PROFILE/GeometryDash/Contents/geode/mods"
-        geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash"
+        mkdir -p "$CLI_PROFILE/Contents/geode/mods"
+        geode profile add --name GithubActions "$CLI_PROFILE"
 
         geode sdk install "${{ github.action_path }}/geode-sdk-clone"
         
