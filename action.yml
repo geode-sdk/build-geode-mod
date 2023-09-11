@@ -74,7 +74,7 @@ runs:
 
         export CLI_PROFILE="${{ github.action_path }}/cli-profile"
         mkdir -p "$CLI_PROFILE/geode/mods"
-        geode profile add --name GithubActions "$CLI_PROFILE"
+        geode profile add --name GithubActions "$CLI_PROFILE/uwu"
 
         geode sdk install "${{ github.action_path }}/geode-sdk-clone"
         
