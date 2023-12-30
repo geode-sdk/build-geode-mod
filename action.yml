@@ -30,6 +30,10 @@ inputs:
     description: Set this to true if you plan on merging .geode files later. See the README for more info.
     required: false
     default: false
+  target:
+    description: Geode target to build for. Can be either "Win32", "MacOS", "Android32" or "Android64".
+    required: false
+    default: ""
 
 outputs:
   build-output:
@@ -43,12 +47,60 @@ runs:
       id: platform
       shell: bash
       run: |
-        if [ "$RUNNER_OS" = "Linux" ]; then ID=linux; elif [ "$RUNNER_OS" = "Windows" ]; then ID=win; elif [ "$RUNNER_OS" = "macOS" ]; then ID=mac; fi
+        DEFAULT_TARGET=Win32
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          ID=linux
+          DEFAULT_TARGET=Android32
+        elif [ "$RUNNER_OS" = "Windows" ]; then
+          ID=win
+          DEFAULT_TARGET=Win32
+        elif [ "$RUNNER_OS" = "macOS" ]; then
+          ID=mac
+          DEFAULT_TARGET=MacOS
+        fi
+        
+        TARGET=${{ inputs.target }}
+        if [ "$TARGET" = "" ]; then
+          TARGET=$DEFAULT_TARGET
+        fi
+
+        if [ "$TARGET" = "Android32" ]; then
+          PLAT=android
+          OUTPUT_ID=android32
+        elif [ "$TARGET" = "Android64" ]; then
+          PLAT=android
+          OUTPUT_ID=android64
+        elif [ "$TARGET" = "Win32" ]; then
+          PLAT=windows
+          OUTPUT_ID=win
+        elif [ "$TARGET" = "MacOS" ]; then
+          PLAT=macos
+          OUTPUT_ID=mac
+        fi
+        
         echo "id=$ID" >> $GITHUB_OUTPUT
+        echo "target=$TARGET" >> $GITHUB_OUTPUT
+        echo "binary_platform=$PLAT" >> $GITHUB_OUTPUT
+        echo "out_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
 
     - uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x86
+
+    - name: Setup NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r26b
+        add-to-path: false
+      if: inputs.target == 'Android32' || inputs.target == 'Android64'
+
+    - name: Setup Android Env
+      shell: bash
+      run: |
+        echo "NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
+        sudo apt install ninja-build
+      if: inputs.target == 'Android32' || inputs.target == 'Android64'
         
     - name: Download CLI
       uses: robinraju/release-downloader@v1.8
@@ -91,7 +143,7 @@ runs:
           SDK_VERSION=${{ inputs.sdk }}
         fi
         geode sdk update $SDK_VERSION
-        geode sdk install-binaries
+        geode sdk install-binaries --platform ${{ steps.platform.outputs.binary_platform }}
 
         export CPM_CACHE="${{ github.action_path }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
@@ -101,13 +153,19 @@ runs:
       id: build
       shell: bash
       run: |
+        mkdir -p $HOME/.cache
+        
         cd "${{ inputs.path }}"
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-T host=x64 -A win32"
-        else
-          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13"
+        elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13"
+        elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$NDK_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-28 -DGEODE_DONT_BUILD_TEST_MODS=1 -G Ninja"
+        elif [ ${{ steps.platform.outputs.target }} = "Android64" ]; then
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$NDK_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-28 -DGEODE_DONT_BUILD_TEST_MODS=1 -G Ninja"
         fi
-        cmake -B build $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=On ${{ inputs.configure-args }}
+        cmake -B build $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=On -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.action_path }}/output"
@@ -130,5 +188,5 @@ runs:
       if: ${{ inputs.combine }}
       uses: actions/upload-artifact@v3
       with:
-        name: "geode-build-${{ steps.platform.outputs.id }}"
+        name: "geode-build-${{ steps.platform.outputs.out_id }}"
         path: "${{ steps.build.outputs.output }}/*.geode"

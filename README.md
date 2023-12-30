@@ -31,6 +31,13 @@ This repository contains two actions, one for just building the mods, and anothe
     # Set this to true if you plan on merging .geode files later. See the README for more info.
     # Default: false
     combine: ''
+
+    # Geode target to build for. Can be either "Win32", "MacOS", "Android32" or "Android64".
+    # Defaults to what is appropriate for the current platform, so:
+    # Defaults to Win32 on windows runners
+    # Defaults to MacOS on macOS runners
+    # Defaults to Android32 on linux runners
+    target: ''
 ```
 
 # Examples
@@ -62,7 +69,7 @@ Usually this is done using a matrix, and due to limitations on how much actions 
 
 To do this, make sure to set `combine: true` on the build action!
 
-## Building a mod on mac and windows, and then combining it
+## Building a mod on mac, android armv7 and armv8, windows, and then combining it
 Full workflow:
 ```yml
 name: Build Geode Mod
@@ -85,6 +92,14 @@ jobs:
         - name: macOS
           os: macos-latest
 
+        - name: Android32
+          os: ubuntu-latest
+          target: Android32
+
+        - name: Android64
+          os: ubuntu-latest
+          target: Android64
+
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
 
@@ -95,6 +110,7 @@ jobs:
         uses: geode-sdk/build-geode-mod@main
         with:
           combine: true
+          target: ${{ matrix.config.target }}
       
   package:
     name: Package builds
