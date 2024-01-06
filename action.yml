@@ -107,7 +107,7 @@ runs:
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
-      uses: action/checkout@v4
+      uses: actions/checkout@v4
       with:
         repository: ${{ inputs.bindings }}
         ref: ${{ inputs.bindings-ref }}
