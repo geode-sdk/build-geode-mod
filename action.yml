@@ -106,15 +106,15 @@ runs:
       if: inputs.target == 'Android32' || inputs.target == 'Android64'
 
     - name: Download bindings repo
-      if: inputs.bindings != 'geode-sdk/bindings' || input.bindings-ref != ''
+      if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       uses: action/checkout@v4
       with:
-        repository: ${{ input.bindings }}
-        ref: ${{ input.bindings-ref }}
+        repository: ${{ inputs.bindings }}
+        ref: ${{ inputs.bindings-ref }}
         path: bindings-repo
 
     - name: Setup bindings enviroment
-      if: inputs.bindings != 'geode-sdk/bindings' || input.bindings-ref != ''
+      if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
         
