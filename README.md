@@ -38,6 +38,12 @@ This repository contains two actions, one for just building the mods, and anothe
     # Defaults to MacOS on macOS runners
     # Defaults to Android32 on linux runners
     target: ''
+
+    # What repository to use for bindings. Must be in the format "user/repo". Not required.
+    bindings: ''
+
+    # Which commit/branch to use for bindings. Defaults to latest commit in main branch. Not required.
+    bindings-ref: ''
 ```
 
 # Examples

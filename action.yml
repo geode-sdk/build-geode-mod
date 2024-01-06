@@ -34,6 +34,14 @@ inputs:
     description: Geode target to build for. Can be either "Win32", "MacOS", "Android32" or "Android64".
     required: false
     default: ""
+  bindings:
+    description: What repository to use for bindings. Must be in the format "user/repo"
+    required: false
+    default: "geode-sdk/bindings"
+  bindings-ref:
+    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
+    required: false
+    default: ""
 
 outputs:
   build-output:
@@ -96,6 +104,19 @@ runs:
         echo "NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
         sudo apt install ninja-build
       if: inputs.target == 'Android32' || inputs.target == 'Android64'
+
+    - name: Download bindings repo
+      if: inputs.bindings != 'geode-sdk/bindings' || input.bindings-ref != ''
+      uses: action/checkout@v4
+      with:
+        repository: ${{ input.bindings }}
+        ref: ${{ input.bindings-ref }}
+        path: bindings-repo
+
+    - name: Setup bindings enviroment
+      if: inputs.bindings != 'geode-sdk/bindings' || input.bindings-ref != ''
+      shell: bash
+      run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
         
     - name: Download CLI
       uses: robinraju/release-downloader@v1.8
