@@ -26,15 +26,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: geode-sdk/textureldr
-          path: textureldr
+          repository: geode-sdk/DevTools
+          path: DevTools
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
           sdk: nightly
           build-config: RelWithDebInfo
-          path: textureldr
+          path: DevTools
           combine: true
           target: ${{ matrix.config.target }}
       

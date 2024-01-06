@@ -3,7 +3,7 @@ description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Use nightly to specify latest commit
+    description: Which version of the SDK to use, defaults to latest release. Set to 'nightly' for latest commit, 'latest' for latest release
     required: false
     default: latest
   cli:

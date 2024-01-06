@@ -7,7 +7,8 @@ This repository contains two actions, one for just building the mods, and anothe
 ```yml
 - uses: geode-sdk/build-geode-mod@main
   with:
-    # Which version of the SDK to use. Use nightly to specify latest commit
+    # Which version of the SDK to use.
+    # Set to 'nightly' for latest commit, 'latest' for latest release
     # Default: latest
     sdk: ''
 
