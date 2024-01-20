@@ -45,6 +45,9 @@ This repository contains two actions, one for just building the mods, and anothe
 
     # Which commit/branch to use for bindings. Defaults to latest commit in main branch. Not required.
     bindings-ref: ''
+
+    # The android min SDK version to target. Defaults to 23. Not required.
+    android-min-sdk: ''
 ```
 
 # Examples
