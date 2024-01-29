@@ -179,7 +179,7 @@ runs:
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-T host=x64 -A win32"
         elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13"
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$NDK_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1 -G Ninja"
         elif [ ${{ steps.platform.outputs.target }} = "Android64" ]; then
