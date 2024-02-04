@@ -114,7 +114,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
