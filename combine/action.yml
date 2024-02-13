@@ -20,23 +20,36 @@ runs:
   using: composite
   steps:
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
         tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        fileName: "*-${{ steps.platform.outputs.id }}.zip"
         tarBall: false
         zipBall: false
-        fileName: "*-linux.zip"
-        extract: true
-        out-file-path: ${{ github.action_path }}
+        out-file-path: "${{ github.action_path }}/cli"
 
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    - name: Setup CLI
       shell: bash
+      run: |
+        7z x "cli/*-${{ matrix.config.cli_id }}.zip" -ocli
+        echo "${{ github.action_path }}/cli" >> $GITHUB_PATH
+
+        if [ ${{ steps.platform.outputs.id }} != "win" ]; then
+          chmod +x "${{ github.action_path }}/cli/geode"
+        fi
+
+    - name: Set Real Action Path
+      id: action-path
+      shell: bash
+      run: |
+        export REAL_PATH=$(realpath "${{ github.action_path }}")
+        echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
 
     - uses: actions/download-artifact@v4
       with:
-        path: "${{ github.action_path }}/artifacts"
+        path: "${{ steps.action-path.outputs.path }}/artifacts"
 
     - name: Combine them
       shell: bash

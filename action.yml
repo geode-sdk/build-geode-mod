@@ -154,25 +154,24 @@ runs:
       if: inputs.use-cpm-cache
 
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
         tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        fileName: "*-${{ steps.platform.outputs.id }}.zip"
         tarBall: false
         zipBall: false
-        fileName: "*-${{ steps.platform.outputs.id }}.zip"
-        extract: true
-        out-file-path: ${{ github.action_path }}
-
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
+        out-file-path: "${{ github.action_path }}/cli"
 
     - name: Setup CLI
       shell: bash
       run: |
+        7z x "cli/*-${{ matrix.config.cli_id }}.zip" -ocli
+        echo "${{ github.action_path }}/cli" >> $GITHUB_PATH
+
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
-          chmod +x "${{ github.action_path }}/geode"
+          chmod +x "${{ github.action_path }}/cli/geode"
         fi
 
         export CLI_PROFILE="${{ github.action_path }}/cli-profile"
