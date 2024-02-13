@@ -20,30 +20,31 @@ runs:
   using: composite
   steps:
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
         tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        fileName: "*-linux.zip"
         tarBall: false
         zipBall: false
-        fileName: "*-linux.zip"
-        extract: true
-        out-file-path: ${{ github.action_path }}
+        out-file-path: "cli"
 
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    - name: Setup CLI
       shell: bash
+      run: |
+        7z x "cli/*-linux.zip" -ocli
+        echo "${{ github.workspace }}/cli" >> $GITHUB_PATH
+        chmod +x "cli/geode"
 
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
-        path: "${{ github.action_path }}/artifacts"
-    
+        path: artifacts
+
     - name: Combine them
       shell: bash
       id: merge
       run: |
-        cd "${{ github.action_path }}"
-        chmod +x ./geode
         mkdir out
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
         for mod in $MODS; do
@@ -68,27 +69,27 @@ runs:
           fi
           cp $FIRST out
         done
-        echo "output=${{ github.action_path }}/out" >> $GITHUB_OUTPUT
+        echo "output=${{ github.workspace }}/out" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-win
           failOnError: false
-        
-    - uses: geekyeggo/delete-artifact@v2
+
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-mac
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android32
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android64
