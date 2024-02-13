@@ -125,7 +125,7 @@ runs:
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.9
+      uses: robinraju/release-downloader@v1.8
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
