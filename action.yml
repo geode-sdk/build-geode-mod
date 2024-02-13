@@ -111,11 +111,12 @@ runs:
       if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
 
     - name: Setup custom sccache
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
+      shell: bash
       run: |
         7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
-      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
 
     # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
