@@ -190,11 +190,6 @@ runs:
           SDK_VERSION=${{ inputs.sdk }}
         fi
         geode sdk update $SDK_VERSION
-        cd $GEODE_SDK
-        git fetch
-        git switch main
-        git reset --hard
-        git pull
         geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
 
         export CPM_CACHE="${{ github.action_path }}/cpm-cache"
@@ -215,10 +210,10 @@ runs:
           CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
         elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1"
-          CMAKE_CODEGEN_ARGS="-G Ninja"
+          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
         elif [ ${{ steps.platform.outputs.target }} = "Android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1"
-          CMAKE_CODEGEN_ARGS="-G Ninja"
+          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
         fi
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_CODEGEN_CMAKE_ARGS="$CMAKE_CODEGEN_ARGS" -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}

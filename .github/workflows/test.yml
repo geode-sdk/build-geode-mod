@@ -28,8 +28,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: action
 
       - uses: actions/checkout@v4
         with:
@@ -37,7 +35,7 @@ jobs:
           path: textureldr
 
       - name: Build the mod
-        uses: './action/'
+        uses: ${{ github.workspace }}
         with:
           sdk: nightly
           build-config: RelWithDebInfo
@@ -53,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: './combine/'
+      - uses: ${{ github.workspace }}/combine
         id: build
 
       - uses: actions/upload-artifact@v4
