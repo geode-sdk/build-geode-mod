@@ -181,6 +181,9 @@ runs:
           chmod +x "${{ steps.action-path.outputs.path }}/cli/geode"
         fi
 
+    - name: Setup Geode SDK
+      shell: bash
+      run: |
         export CLI_PROFILE="${{ steps.action-path.outputs.path }}/cli-profile"
         # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
