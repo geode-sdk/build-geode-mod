@@ -3,6 +3,9 @@ An easy to use action to build a geode mod within github actions.
 
 This repository contains two actions, one for just building the mods, and another for combining builds for multiple platforms into a single .geode file.
 
+If you're just here to copy paste the action, look at the examples folder: \
+https://github.com/geode-sdk/build-geode-mod/tree/main/examples
+
 # Usage
 ```yml
 - uses: geode-sdk/build-geode-mod@main
@@ -80,60 +83,5 @@ Usually this is done using a matrix, and due to limitations on how much actions 
 To do this, make sure to set `combine: true` on the build action!
 
 ## Building a mod on mac, android armv7 and armv8, windows, and then combining it
-Full workflow:
-```yml
-name: Build Geode Mod
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - "main"
-
-jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - name: Windows
-          os: windows-latest
-          
-        - name: macOS
-          os: macos-latest
-
-        - name: Android32
-          os: ubuntu-latest
-          target: Android32
-
-        - name: Android64
-          os: ubuntu-latest
-          target: Android64
-
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build the mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          combine: true
-          target: ${{ matrix.config.target }}
-      
-  package:
-    name: Package builds
-    runs-on: ubuntu-latest
-    needs: ['build']
-
-    steps:
-      - uses: geode-sdk/build-geode-mod/combine@main
-        id: build
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Build Output
-          path: ${{ steps.build.outputs.build-output }}
-
-```
+Full workflow: \
+https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml
