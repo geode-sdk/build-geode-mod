@@ -168,7 +168,7 @@ runs:
       shell: bash
       run: |
         7z x "cli/*-${{ steps.platform.outputs.id }}.zip" -ocli
-        echo "cli" >> $GITHUB_PATH
+        echo "${{ github.workspace }}/cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
           chmod +x "cli/geode"
