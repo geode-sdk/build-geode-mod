@@ -37,7 +37,7 @@ jobs:
       - name: Build the mod
         uses: ./
         with:
-          sdk: nightly
+          # sdk: nightly
           build-config: RelWithDebInfo
           path: textureldr
           combine: true
