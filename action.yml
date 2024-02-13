@@ -190,7 +190,11 @@ runs:
           SDK_VERSION=${{ inputs.sdk }}
         fi
         geode sdk update $SDK_VERSION
-        geode sdk update $SDK_VERSION
+        cd $GEODE_SDK
+        git fetch
+        git switch main
+        git reset --hard
+        git pull
         geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
 
         export CPM_CACHE="${{ github.action_path }}/cpm-cache"
