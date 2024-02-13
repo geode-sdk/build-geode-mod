@@ -26,6 +26,19 @@ runs:
         export REAL_PATH=$(realpath "${{ github.action_path }}")
         echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
 
+    - name: Detect platform
+      id: platform
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          ID=linux
+        elif [ "$RUNNER_OS" = "Windows" ]; then
+          ID=win
+        elif [ "$RUNNER_OS" = "macOS" ]; then
+          ID=mac
+        fi
+        echo "id=$ID" >> $GITHUB_OUTPUT
+
     - name: Download CLI
       uses: robinraju/release-downloader@v1.9
       with:
