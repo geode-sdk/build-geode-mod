@@ -35,7 +35,7 @@ jobs:
           path: textureldr
 
       - name: Build the mod
-        uses: ${{ github.workspace }}
+        uses: ./
         with:
           sdk: nightly
           build-config: RelWithDebInfo
@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ${{ github.workspace }}/combine
+      - uses: ./combine
         id: build
 
       - uses: actions/upload-artifact@v4

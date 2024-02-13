@@ -143,7 +143,7 @@ runs:
     - name: Setup CPM Cache
       uses: actions/cache@v4
       with:
-        path: ${{ github.action_path }}/cpm-cache
+        path: ${{ github.workspace }}/cpm-cache
         key: cpm-${{ steps.platform.outputs.id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
           cpm-${{ steps.platform.outputs.id }}-v1-
@@ -192,7 +192,7 @@ runs:
         geode sdk update $SDK_VERSION
         geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
 
-        export CPM_CACHE="${{ github.action_path }}/cpm-cache"
+        export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
     - name: Run CMake and build
