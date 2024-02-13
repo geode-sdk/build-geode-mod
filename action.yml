@@ -60,6 +60,9 @@ outputs:
     description: A folder containing the built .geode file(s)
     value: ${{ steps.build.outputs.output }}
 
+env:
+  GEODE_CI: ''
+
 runs:
   using: composite
   steps:
