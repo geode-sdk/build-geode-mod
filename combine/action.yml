@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.9
+      uses: robinraju/release-downloader@v1.8
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
