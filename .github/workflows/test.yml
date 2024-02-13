@@ -37,7 +37,7 @@ jobs:
           path: textureldr
 
       - name: Build the mod
-        uses: action
+        uses: action/
         with:
           sdk: nightly
           build-config: RelWithDebInfo
@@ -53,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: combine
+      - uses: combine/
         id: build
 
       - uses: actions/upload-artifact@v4
