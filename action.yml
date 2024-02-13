@@ -138,15 +138,9 @@ runs:
     - name: Install Ninja
       shell: bash
       run: |
-        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
-          curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-win.zip -o ninja.zip
-          7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
-          echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
-        elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
-          brew install ninja
-        else
-          sudo apt install ninja-build
-        fi
+        curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
+        7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
+        echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
 
     - name: Update LLVM
       if: steps.platform.outputs.id == 'win'
