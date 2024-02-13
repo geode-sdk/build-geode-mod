@@ -35,7 +35,7 @@ jobs:
           path: textureldr
 
       - name: Build the mod
-        uses: ''
+        uses: action.yml
         with:
           sdk: nightly
           build-config: RelWithDebInfo
