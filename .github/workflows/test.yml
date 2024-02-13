@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: action
 
       - uses: actions/checkout@v4
         with:
@@ -35,7 +37,7 @@ jobs:
           path: textureldr
 
       - name: Build the mod
-        uses: action.yml
+        uses: action
         with:
           sdk: nightly
           build-config: RelWithDebInfo
