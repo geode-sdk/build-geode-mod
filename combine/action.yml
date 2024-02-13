@@ -19,13 +19,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set Real Action Path
-      id: action-path
-      shell: bash
-      run: |
-        export REAL_PATH=$(realpath "${{ github.action_path }}")
-        echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
-
     - name: Detect platform
       id: platform
       shell: bash
@@ -48,27 +41,26 @@ runs:
         fileName: "*-${{ steps.platform.outputs.id }}.zip"
         tarBall: false
         zipBall: false
-        out-file-path: "${{ steps.action-path.outputs.path }}/cli"
+        out-file-path: "cli"
 
     - name: Setup CLI
       shell: bash
       run: |
-        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ steps.platform.outputs.id }}.zip" -o"${{ steps.action-path.outputs.path }}/cli"
-        echo "${{ steps.action-path.outputs.path }}/cli" >> $GITHUB_PATH
+        7z x "cli/*-${{ steps.platform.outputs.id }}.zip" -ocli
+        echo "cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
-          chmod +x "${{ steps.action-path.outputs.path }}/cli/geode"
+          chmod +x "cli/geode"
         fi
 
     - uses: actions/download-artifact@v4
       with:
-        path: "${{ steps.action-path.outputs.path }}/artifacts"
+        path: artifacts
 
     - name: Combine them
       shell: bash
       id: merge
       run: |
-        cd "${{ steps.action-path.outputs.path }}"
         chmod +x ./geode
         mkdir out
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
@@ -94,7 +86,7 @@ runs:
           fi
           cp $FIRST out
         done
-        echo "output=${{ steps.action-path.outputs.path }}/out" >> $GITHUB_OUTPUT
+        echo "output=${{ github.workspace }}/out" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
