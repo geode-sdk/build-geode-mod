@@ -46,6 +46,14 @@ inputs:
     description: The android min SDK version to target. Defaults to 23
     required: false
     default: 23
+  ccache-variant:
+    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache
+    required: false
+    default: sccache
+  use-cpm-cache:
+    description: Whether to cache CPM sources. Defaults to true
+    required: false
+    default: true
 
 outputs:
   build-output:
@@ -123,6 +131,23 @@ runs:
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
+
+    # https://github.com/hendrikmuhs/ccache-action/pull/182
+    - name: Setup sccache
+      uses: chirag-droid/ccache-action@main
+      with:
+        variant: ${{ inputs.ccache-variant }}
+        key: ${{ steps.platform.outputs.id }}-v1
+      if: inputs.ccache-variant != ''
+
+    - name: Setup CPM Cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.action_path }}/cpm-cache
+        key: cpm-${{ steps.platform.outputs.id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+        restore-keys: |
+          cpm-${{ steps.platform.outputs.id }}-v1-
+      if: inputs.use-cpm-cache
 
     - name: Download CLI
       uses: robinraju/release-downloader@v1.8
