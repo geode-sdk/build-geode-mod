@@ -53,7 +53,7 @@ runs:
     - name: Setup CLI
       shell: bash
       run: |
-        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ steps.platform.outputs.id }}.zip" -ocli
+        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ steps.platform.outputs.id }}.zip" -o"${{ steps.action-path.outputs.path }}/cli"
         echo "${{ steps.action-path.outputs.path }}/cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
