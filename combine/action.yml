@@ -40,7 +40,7 @@ runs:
     - name: Setup CLI
       shell: bash
       run: |
-        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ matrix.config.cli_id }}.zip" -ocli
+        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ steps.platform.outputs.id }}.zip" -ocli
         echo "${{ steps.action-path.outputs.path }}/cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
