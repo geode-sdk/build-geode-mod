@@ -71,25 +71,25 @@ runs:
         done
         echo "output=${{ github.workspace }}/out" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v4
+    - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-win
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v4
+    - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-mac
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v4
+    - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android32
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v4
+    - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android64
