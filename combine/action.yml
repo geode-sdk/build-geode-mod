@@ -61,7 +61,6 @@ runs:
       shell: bash
       id: merge
       run: |
-        chmod +x ./geode
         mkdir out
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
         for mod in $MODS; do
@@ -93,7 +92,7 @@ runs:
       with:
           name: geode-build-win
           failOnError: false
-        
+
     - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
