@@ -137,16 +137,16 @@ runs:
       uses: chirag-droid/ccache-action@main
       with:
         variant: ${{ inputs.ccache-variant }}
-        key: ${{ steps.platform.outputs.id }}-v1
+        key: ${{ steps.platform.outputs.target_id }}-v1
       if: inputs.ccache-variant != ''
 
     - name: Setup CPM Cache
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/cpm-cache
-        key: cpm-${{ steps.platform.outputs.id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+        key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
-          cpm-${{ steps.platform.outputs.id }}-v1-
+          cpm-${{ steps.platform.outputs.target_id }}-v1-
       if: inputs.use-cpm-cache
 
     - name: Download CLI
@@ -200,18 +200,18 @@ runs:
       shell: bash
       run: |
         cd "${{ inputs.path }}"
-        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+        if [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
           CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
-        elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
+        elif [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
           CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
-        elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
+        elif [ ${{ steps.platform.outputs.target_id }} = "android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
-          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_C_FLAGS=;-DCMAKE_CXX_FLAGS=;-G Ninja"
-        elif [ ${{ steps.platform.outputs.target }} = "Android64" ]; then
+          CMAKE_CODEGEN_ARGS="-G Ninja"
+        elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
-          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-DCMAKE_C_FLAGS=;-DCMAKE_CXX_FLAGS=;-G Ninja"
+          CMAKE_CODEGEN_ARGS="-G Ninja"
         fi
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_CODEGEN_CMAKE_ARGS="$CMAKE_CODEGEN_ARGS" -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
