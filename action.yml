@@ -54,6 +54,10 @@ inputs:
     description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
+  mac-use-ccache:
+    description: Whether to use ccache/sccache on macOS, this option exists because there's no PCH with sccache and AppleClang 🔥. Defaults to true
+    required: false
+    default: true
 
 outputs:
   build-output:
@@ -138,7 +142,7 @@ runs:
       with:
         variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
-      if: inputs.ccache-variant != ''
+      if: inputs.ccache-variant != '' && (steps.platform.outputs.id != 'mac' || inputs.mac-use-ccache)
 
     - name: Setup CPM Cache
       uses: actions/cache@v4
