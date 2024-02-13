@@ -70,7 +70,7 @@ runs:
           ID=mac
           DEFAULT_TARGET=MacOS
         fi
-        
+
         TARGET=${{ inputs.target }}
         if [ "$TARGET" = "" ]; then
           TARGET=$DEFAULT_TARGET
@@ -85,29 +85,30 @@ runs:
         elif [ "$TARGET" = "MacOS" ]; then
           OUTPUT_ID=mac
         fi
-        
+
         echo "id=$ID" >> $GITHUB_OUTPUT
         echo "target=$TARGET" >> $GITHUB_OUTPUT
         echo "target_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
 
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x86
-
-    - name: Setup NDK
-      uses: nttld/setup-ndk@v1
-      id: setup-ndk
-      with:
-        ndk-version: r26b
-        add-to-path: false
-      if: inputs.target == 'Android32' || inputs.target == 'Android64'
-
-    - name: Setup Android Env
+    - name: Install Ninja
       shell: bash
       run: |
-        echo "NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
-        sudo apt install ninja-build
-      if: inputs.target == 'Android32' || inputs.target == 'Android64'
+        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-win.zip > "ninja.zip"
+          7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
+          echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
+        elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
+          brew install ninja
+        else
+          sudo apt install ninja-build
+        fi
+
+    - name: Update LLVM
+      if: steps.platform.outputs.id == 'win'
+      run: |
+        iwr https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -OutFile llvm-inst.exe
+        7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
+        echo "${{ github.workspace }}\llvm\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
@@ -121,9 +122,9 @@ runs:
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
-        
+
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -136,7 +137,7 @@ runs:
 
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    
+
     - name: Setup CLI
       shell: bash
       run: |
@@ -152,7 +153,7 @@ runs:
         geode profile add --name GithubActions "$CLI_PROFILE"
 
         geode sdk install "${{ github.action_path }}/geode-sdk-clone"
-        
+
         # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.action_path }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
@@ -168,28 +169,27 @@ runs:
         export CPM_CACHE="${{ github.action_path }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
-
     - name: Run CMake and build
       id: build
       shell: bash
       run: |
         mkdir -p $HOME/.cache
-        
+
         cd "${{ inputs.path }}"
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
-          CMAKE_EXTRA_ARGS="-T host=x64 -A win32"
+          CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS=\"-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja\""
         elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS=\"-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja\""
         elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$NDK_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1 -G Ninja"
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1 -DGEODE_CODEGEN_CMAKE_ARGS=\"-G Ninja\""
         elif [ ${{ steps.platform.outputs.target }} = "Android64" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$NDK_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1 -G Ninja"
+          CMAKE_EXTRA_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1 -DGEODE_CODEGEN_CMAKE_ARGS=\"-G Ninja\""
         fi
-        cmake -B build $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=On -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
+        cmake -B build $CMAKE_EXTRA_ARGS -G Ninja -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.action_path }}/output"
-        
+
         for file in $(find ./build -name *.geode); do
           cp $file "${{ github.action_path }}/output"
         done
@@ -203,10 +203,10 @@ runs:
           OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
         fi
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
-    
+
     - name: Upload artifacts
       if: ${{ inputs.combine }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
         path: "${{ steps.build.outputs.output }}/*.geode"

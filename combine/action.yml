@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -34,10 +34,10 @@ runs:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
 
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         path: "${{ github.action_path }}/artifacts"
-    
+
     - name: Combine them
       shell: bash
       id: merge
@@ -70,25 +70,25 @@ runs:
         done
         echo "output=${{ github.action_path }}/out" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-win
           failOnError: false
         
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-mac
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android32
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android64
