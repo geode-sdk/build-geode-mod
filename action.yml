@@ -179,10 +179,10 @@ runs:
         cd "${{ inputs.path }}"
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS=\"-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja\""
-          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang\;-DCMAKE_CXX_COMPILER=clang++\;-G Ninja"
+          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
         elif [ ${{ steps.platform.outputs.id }} = "mac" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
-          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang\;-DCMAKE_CXX_COMPILER=clang++\;-G Ninja"
+          CMAKE_CODEGEN_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja"
         elif [ ${{ steps.platform.outputs.target }} = "Android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }} -DGEODE_DONT_BUILD_TEST_MODS=1"
           CMAKE_CODEGEN_ARGS="-G Ninja"
