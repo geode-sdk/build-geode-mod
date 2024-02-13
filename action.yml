@@ -115,6 +115,11 @@ runs:
           sudo apt install ninja-build
         fi
 
+    - name: Install LLVM
+      if: steps.platform.outputs.id == 'mac'
+      shell: bash
+      run: brew install llvm
+
     - name: Update LLVM
       if: steps.platform.outputs.id == 'win'
       shell: pwsh # use pwsh cuz this is windows-only and i copy-pasted from geode 👍
