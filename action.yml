@@ -199,6 +199,8 @@ runs:
       id: build
       shell: bash
       run: |
+        mkdir -p $HOME/.cache
+
         cd "${{ inputs.path }}"
         if [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
