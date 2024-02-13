@@ -19,6 +19,13 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Set Real Action Path
+      id: action-path
+      shell: bash
+      run: |
+        export REAL_PATH=$(realpath "${{ github.action_path }}")
+        echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
+
     - name: Download CLI
       uses: robinraju/release-downloader@v1.9
       with:
@@ -28,24 +35,17 @@ runs:
         fileName: "*-${{ steps.platform.outputs.id }}.zip"
         tarBall: false
         zipBall: false
-        out-file-path: "${{ github.action_path }}/cli"
+        out-file-path: "${{ steps.action-path.outputs.path }}/cli"
 
     - name: Setup CLI
       shell: bash
       run: |
-        7z x "${{ github.action_path }}/cli/*-${{ matrix.config.cli_id }}.zip" -ocli
-        echo "${{ github.action_path }}/cli" >> $GITHUB_PATH
+        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ matrix.config.cli_id }}.zip" -ocli
+        echo "${{ steps.action-path.outputs.path }}/cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
-          chmod +x "${{ github.action_path }}/cli/geode"
+          chmod +x "${{ steps.action-path.outputs.path }}/cli/geode"
         fi
-
-    - name: Set Real Action Path
-      id: action-path
-      shell: bash
-      run: |
-        export REAL_PATH=$(realpath "${{ github.action_path }}")
-        echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
 
     - uses: actions/download-artifact@v4
       with:
@@ -55,7 +55,7 @@ runs:
       shell: bash
       id: merge
       run: |
-        cd "${{ github.action_path }}"
+        cd "${{ steps.action-path.outputs.path }}"
         chmod +x ./geode
         mkdir out
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
@@ -81,7 +81,7 @@ runs:
           fi
           cp $FIRST out
         done
-        echo "output=${{ github.action_path }}/out" >> $GITHUB_OUTPUT
+        echo "output=${{ steps.action-path.outputs.path }}/out" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v4
       if: ${{ inputs.delete-artifacts }}

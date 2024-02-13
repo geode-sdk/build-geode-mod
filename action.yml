@@ -67,6 +67,13 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Set Real Action Path
+      id: action-path
+      shell: bash
+      run: |
+        export REAL_PATH=$(realpath "${{ github.action_path }}")
+        echo "path=$REAL_PATH" >> $GITHUB_OUTPUT
+
     - name: Detect platform
       id: platform
       shell: bash
@@ -162,29 +169,29 @@ runs:
         fileName: "*-${{ steps.platform.outputs.id }}.zip"
         tarBall: false
         zipBall: false
-        out-file-path: "${{ github.action_path }}/cli"
+        out-file-path: "${{ steps.action-path.outputs.path }}/cli"
 
     - name: Setup CLI
       shell: bash
       run: |
-        7z x "${{ github.action_path }}/cli/*-${{ matrix.config.cli_id }}.zip" -ocli
-        echo "${{ github.action_path }}/cli" >> $GITHUB_PATH
+        7z x "${{ steps.action-path.outputs.path }}/cli/*-${{ matrix.config.cli_id }}.zip" -ocli
+        echo "${{ steps.action-path.outputs.path }}/cli" >> $GITHUB_PATH
 
         if [ ${{ steps.platform.outputs.id }} != "win" ]; then
-          chmod +x "${{ github.action_path }}/cli/geode"
+          chmod +x "${{ steps.action-path.outputs.path }}/cli/geode"
         fi
 
-        export CLI_PROFILE="${{ github.action_path }}/cli-profile"
+        export CLI_PROFILE="${{ steps.action-path.outputs.path }}/cli-profile"
         # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
         # for mac
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE"
 
-        geode sdk install "${{ github.action_path }}/geode-sdk-clone"
+        geode sdk install "${{ steps.action-path.outputs.path }}/geode-sdk-clone"
 
         # silly github actions wont refresh the env
-        export GEODE_SDK="${{ github.action_path }}/geode-sdk-clone"
+        export GEODE_SDK="${{ steps.action-path.outputs.path }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
         if [ "${{ inputs.sdk }}" == "latest" ]; then
@@ -221,13 +228,13 @@ runs:
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_CODEGEN_CMAKE_ARGS="$CMAKE_CODEGEN_ARGS" -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
-        mkdir "${{ github.action_path }}/output"
+        mkdir "${{ steps.action-path.outputs.path }}/output"
 
         for file in $(find ./build -name *.geode); do
-          cp $file "${{ github.action_path }}/output"
+          cp $file "${{ steps.action-path.outputs.path }}/output"
         done
 
-        OUTPUT_DIR="${{ github.action_path }}/output"
+        OUTPUT_DIR="${{ steps.action-path.outputs.path }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
           OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$OUTPUT_DIR")
         elif [ ${{ steps.platform.outputs.id }} = "win" ]; then
