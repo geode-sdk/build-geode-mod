@@ -54,10 +54,6 @@ inputs:
     description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
-  mac-use-ccache:
-    description: Whether to use ccache/sccache on macOS, this option exists because there's no PCH with sccache and AppleClang 🔥. Defaults to true
-    required: false
-    default: true
 
 outputs:
   build-output:
@@ -102,6 +98,42 @@ runs:
         echo "target=$TARGET" >> $GITHUB_OUTPUT
         echo "target_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
 
+    # https://github.com/mozilla/sccache/issues/2090
+    - name: Download custom sccache
+      uses: robinraju/release-downloader@v1.9
+      with:
+        repository: cgytrus/sccache
+        latest: true
+        fileName: 'sccache-*-x86_64-apple-darwin.zip'
+        tarBall: false
+        zipBall: false
+        out-file-path: "epic-sccache"
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
+
+    - name: Setup custom sccache
+      run: |
+        7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
+        echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
+        chmod +x "epic-sccache/sccache"
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
+
+    # https://github.com/hendrikmuhs/ccache-action/pull/182
+    - name: Setup sccache
+      uses: chirag-droid/ccache-action@main
+      with:
+        variant: ${{ inputs.ccache-variant }}
+        key: ${{ steps.platform.outputs.target_id }}-v1
+      if: inputs.ccache-variant != ''
+
+    - name: Setup CPM Cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/cpm-cache
+        key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+        restore-keys: |
+          cpm-${{ steps.platform.outputs.target_id }}-v1-
+      if: inputs.use-cpm-cache
+
     - name: Install Ninja
       shell: bash
       run: |
@@ -116,17 +148,12 @@ runs:
         fi
 
     - name: Update LLVM
-      if: steps.platform.outputs.id == 'win' || steps.platform.outputs.id == 'mac'
+      if: steps.platform.outputs.id == 'win'
       shell: bash
       run: |
-        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
-          curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -o llvm-inst.exe
-          7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
-          echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
-        else
-          brew install llvm
-          echo "/usr/local/opt/llvm/bin" >> $GITHUB_PATH
-        fi
+        curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -o llvm-inst.exe
+        7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
+        echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
@@ -140,23 +167,6 @@ runs:
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
-
-    # https://github.com/hendrikmuhs/ccache-action/pull/182
-    - name: Setup sccache
-      uses: chirag-droid/ccache-action@main
-      with:
-        variant: ${{ inputs.ccache-variant }}
-        key: ${{ steps.platform.outputs.target_id }}-v1
-      if: inputs.ccache-variant != '' && (steps.platform.outputs.id != 'mac' || inputs.mac-use-ccache)
-
-    - name: Setup CPM Cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/cpm-cache
-        key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-        restore-keys: |
-          cpm-${{ steps.platform.outputs.target_id }}-v1-
-      if: inputs.use-cpm-cache
 
     - name: Download CLI
       uses: robinraju/release-downloader@v1.9
@@ -215,7 +225,7 @@ runs:
         cd "${{ inputs.path }}"
         CMAKE_EXTRA_ARGS=""
         if [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF"
         elif [ ${{ steps.platform.outputs.target_id }} = "android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
