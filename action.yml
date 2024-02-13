@@ -105,6 +105,7 @@ runs:
 
     - name: Update LLVM
       if: steps.platform.outputs.id == 'win'
+      shell: pwsh # use pwsh cuz this is windows-only and i copy-pasted from geode 👍
       run: |
         iwr https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -OutFile llvm-inst.exe
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
