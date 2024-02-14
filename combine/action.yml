@@ -47,6 +47,7 @@ runs:
         mkdir out
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
         for mod in $MODS; do
+          echo "Merging $mod"
           PACKAGE_ARGS=""
           if [ -f "./artifacts/geode-build-win/$mod" ]; then
             PACKAGE_ARGS="$PACKAGE_ARGS ./artifacts/geode-build-win/$mod"
@@ -68,7 +69,7 @@ runs:
           fi
           cp $FIRST out
         done
-        echo "output=${{ github.action_path }}/out" >> $GITHUB_OUTPUT
+        echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
