@@ -41,6 +41,7 @@ jobs:
           build-config: RelWithDebInfo
           path: textureldr
           combine: true
+          export-pdb: true
           target: ${{ matrix.config.target }}
 
   package:

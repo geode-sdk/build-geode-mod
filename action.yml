@@ -55,9 +55,9 @@ inputs:
     required: false
     default: true
   export-pdb:
-    description: Whether to export PDB files for Windows builds. Defaults to true
+    description: Whether to export PDB files for Windows builds. Defaults to false
     required: false
-    default: true
+    default: false
 
 outputs:
   build-output:
