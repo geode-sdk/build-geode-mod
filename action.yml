@@ -54,6 +54,10 @@ inputs:
     description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
+  export-pdb:
+    description: Whether to export PDB files for Windows builds. Defaults to true
+    required: false
+    default: true
 
 outputs:
   build-output:
@@ -239,6 +243,14 @@ runs:
         for file in $(find ./build -name *.geode); do
           cp $file "${{ github.workspace }}/output"
         done
+
+        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          if [ "${{ inputs.export-pdb }}" = "true" ]; then
+            for file in $(find ./build -name *.pdb); do
+              cp $file "${{ github.workspace }}/output"
+            done
+          fi
+        fi
 
         OUTPUT_DIR="${{ github.workspace }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
