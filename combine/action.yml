@@ -69,13 +69,14 @@ runs:
           fi
           cp $FIRST out
         done
+        cp -n ./artifacts/geode-build-win/*.pdb out
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v2
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-win
-          failOnError: false
+    #- uses: geekyeggo/delete-artifact@v2
+    #  if: ${{ inputs.delete-artifacts }}
+    #  with:
+    #      name: geode-build-win
+    #      failOnError: false
         
     - uses: geekyeggo/delete-artifact@v2
       if: ${{ inputs.delete-artifacts }}
