@@ -248,7 +248,6 @@ runs:
           if [ "${{ inputs.export-pdb }}" = "true" ]; then
             for file in $(find ./build -name *.pdb); do
               cp $file "${{ github.workspace }}/output"
-              echo "exported $file to ${{ github.workspace }}/output"
             done
           fi
         fi
