@@ -267,4 +267,4 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
-        path: "${{ steps.build.outputs.output }}/*.geode"
+        path: "${{ steps.build.outputs.output }}/*.(geode|pdb)"
