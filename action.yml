@@ -54,6 +54,10 @@ inputs:
     description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
+  export-pdb:
+    description: Whether to export PDB files for Windows builds. Defaults to false
+    required: false
+    default: false
 
 outputs:
   build-output:
@@ -240,6 +244,14 @@ runs:
           cp $file "${{ github.workspace }}/output"
         done
 
+        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          if [ "${{ inputs.export-pdb }}" = "true" ]; then
+            for file in $(find ./build -name *.pdb); do
+              cp $file "${{ github.workspace }}/output"
+            done
+          fi
+        fi
+
         OUTPUT_DIR="${{ github.workspace }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
           OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$OUTPUT_DIR")
@@ -255,4 +267,6 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
-        path: "${{ steps.build.outputs.output }}/*.geode"
+        path: |
+          ${{ steps.build.outputs.output }}/*.geode
+          ${{ steps.build.outputs.output }}/*.pdb
