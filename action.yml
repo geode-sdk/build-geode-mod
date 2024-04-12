@@ -3,9 +3,9 @@ description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Set to 'nightly' for latest commit, 'latest' for latest release
+    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release
     required: false
-    default: latest
+    default: given
   cli:
     description: Which CLI version to use, defaults to latest release.
     required: false
@@ -204,14 +204,20 @@ runs:
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
-        if [ "${{ inputs.sdk }}" == "latest" ]; then
-          SDK_VERSION=stable
+        if [ "${{ inputs.sdk }}" == "nightly" ]; then
+          geode sdk update nightly
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
+        elif [ "${{ inputs.sdk }}" == "latest" ]; then
+          geode sdk update stable
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         else
-          SDK_VERSION=${{ inputs.sdk }}
+          export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print -quit)
+          export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
+          echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
+          geode sdk update "$TARGET_GEODE_VERSION"
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
         fi
-        geode sdk update $SDK_VERSION
-        geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
-
+        
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
