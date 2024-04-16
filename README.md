@@ -29,6 +29,10 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: Release
     build-config: ''
 
+    # Whether to export PDB files for Windows builds. Not required.
+    # Default: false
+    export-pdb: ''
+
     # Path to the project which to build. Defaults to current directory.
     path: ''
 
