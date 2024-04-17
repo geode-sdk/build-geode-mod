@@ -44,7 +44,7 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Defaults to what is appropriate for the current platform, so:
     # Defaults to Win32 on windows runners
     # Defaults to MacOS on macOS runners
-    # Defaults to Android32 on linux runners
+    # Defaults to Android64 on linux runners
     target: ''
 
     # What repository to use for bindings. Must be in the format "user/repo". Not required.

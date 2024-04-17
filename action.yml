@@ -74,7 +74,7 @@ runs:
         DEFAULT_TARGET=Win32
         if [ "$RUNNER_OS" = "Linux" ]; then
           ID=linux
-          DEFAULT_TARGET=Android32
+          DEFAULT_TARGET=Android64
         elif [ "$RUNNER_OS" = "Windows" ]; then
           ID=win
           DEFAULT_TARGET=Win32
