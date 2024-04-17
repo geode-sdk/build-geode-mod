@@ -71,12 +71,14 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
 ```
 
 ## Building with RelWithDebInfo
-Note: the pdb is discarded for now
 ```yml
 - uses: geode-sdk/build-geode-mod@main
   id: build
   with:
     build-config: RelWithDebInfo
+    # Bundle the pdb inside the .geode file
+    # Be warned, they can be quite big
+    export-pdb: true
 ```
 
 # Combine
