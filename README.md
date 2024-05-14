@@ -55,6 +55,10 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
 
     # The android min SDK version to target. Defaults to 23. Not required.
     android-min-sdk: ''
+
+    # Whether to use Link Time Optimization, improving build size at the cost of build time.
+    # Default: true
+    use-lto: ''
 ```
 
 # Examples

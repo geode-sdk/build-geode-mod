@@ -58,6 +58,10 @@ inputs:
     description: Whether to export PDB files for Windows builds. Defaults to false
     required: false
     default: false
+  use-lto:
+    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
+    required: false
+    default: true
 
 outputs:
   build-output:
@@ -240,6 +244,9 @@ runs:
           export CFLAGS="--target=i686-windows-msvc"
           export CXXFLAGS="--target=i686-windows-msvc"
           export LDFLAGS="--target=i686-windows-msvc"
+        fi
+        if [ "${{ inputs.use-lto }}" = "true" ]; then
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON"
         fi
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
