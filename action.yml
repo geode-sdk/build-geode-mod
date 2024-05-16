@@ -149,6 +149,15 @@ runs:
         curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
+    
+    - name: Fix Ubuntu weirdness
+      shell: bash
+      run: |
+        sudo apt install ninja-build &&
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test &&
+        sudo apt-get update &&
+        sudo apt-get install --only-upgrade libstdc++6
+      if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || stepts.platform.outputs.target_id == 'android64')
 
     - name: Update LLVM
       if: steps.platform.outputs.id == 'win'
