@@ -126,7 +126,7 @@ runs:
         chmod +x "epic-sccache/sccache"
 
     - name: Setup sccache
-      uses: chirag-droid/setup-ccache@latest
+      uses: chirag-droid/setup-ccache@main
       with:
         variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
