@@ -142,7 +142,7 @@ runs:
     - name: Install Ninja
       shell: bash
       run: |
-        curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-win.zip -o ninja.zip
+        curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
     
@@ -177,7 +177,7 @@ runs:
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
     - name: Download CLI
-      uses: robinraju/release-downloader@v1
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
