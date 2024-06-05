@@ -121,16 +121,14 @@ runs:
       if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
       shell: bash
       run: |
-        7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
+        7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o "epic-sccache"
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
 
     - name: Setup sccache
       uses: chirag-droid/setup-ccache@main
       with:
-        variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
-      if: inputs.ccache-variant != ''
 
     - name: Setup CPM Cache
       uses: actions/cache@v4
@@ -144,8 +142,8 @@ runs:
     - name: Install Ninja
       shell: bash
       run: |
-        curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
-        7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
+        curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja-win.zip
+        7z x ninja-win.zip -o "$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
     
     - name: Fix Ubuntu weirdness
