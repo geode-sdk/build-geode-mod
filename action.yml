@@ -1,9 +1,9 @@
 name: Build Geode mod
-description: Builds a Geode mod.
+description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release.
+    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release
     required: false
     default: given
   cli:
@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ""
   build-config:
-    description: Which build configuration to use. Defaults to Release.
+    description: Which build configuration to use. Defaults to Release
     required: false
     default: Release
   path:
@@ -35,31 +35,31 @@ inputs:
     required: false
     default: ""
   bindings:
-    description: What repository to use for bindings. Must be in the format "user/repo".
+    description: What repository to use for bindings. Must be in the format "user/repo"
     required: false
     default: "geode-sdk/bindings"
   bindings-ref:
-    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch.
+    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
     required: false
     default: ""
   android-min-sdk:
-    description: The Android min SDK version to target. Defaults to 23.
+    description: The android min SDK version to target. Defaults to 23
     required: false
     default: 23
   ccache-variant:
-    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache.
+    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache
     required: false
     default: sccache
   use-cpm-cache:
-    description: Whether to cache CPM sources. Defaults to true.
+    description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
   export-pdb:
-    description: Whether to export PDB files for Windows builds. Defaults to false.
+    description: Whether to export PDB files for Windows builds. Defaults to false
     required: false
     default: false
   use-lto:
-    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true.
+    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
 
@@ -106,10 +106,11 @@ runs:
         echo "target=$TARGET" >> $GITHUB_OUTPUT
         echo "target_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
 
+    # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
-      uses: robinraju/release-downloader@v1
+      uses: robinraju/release-downloader@v1.9
       with:
-        repository: cloudskies/sccache
+        repository: cgytrus/sccache
         latest: true
         fileName: 'sccache-*-x86_64-apple-darwin.zip'
         tarBall: false
@@ -125,8 +126,9 @@ runs:
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
 
+    # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
-      uses: chirag-droid/setup-ccache@main
+      uses: chirag-droid/ccache-action@main
       with:
         variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
@@ -161,7 +163,7 @@ runs:
       if: steps.platform.outputs.id == 'win'
       shell: bash
       run: |
-        curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.6/LLVM-18.1.6-win64.exe -o llvm-inst.exe
+        curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -o llvm-inst.exe
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
         echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
 
@@ -179,7 +181,7 @@ runs:
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
     - name: Download CLI
-      uses: robinraju/release-downloader@v1
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -284,7 +286,7 @@ runs:
 
     - name: Upload artifacts
       if: ${{ inputs.combine }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
         path: |
