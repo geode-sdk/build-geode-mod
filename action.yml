@@ -43,7 +43,7 @@ inputs:
     required: false
     default: ""
   android-min-sdk:
-    description: The android min SDK version to target. Defaults to 23.
+    description: The Android min SDK version to target. Defaults to 23.
     required: false
     default: 23
   ccache-variant:
@@ -121,14 +121,16 @@ runs:
       if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
       shell: bash
       run: |
-        7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o "epic-sccache"
+        7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
 
     - name: Setup sccache
       uses: chirag-droid/setup-ccache@main
       with:
+        variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
+      if: inputs.ccache-variant != ''
 
     - name: Setup CPM Cache
       uses: actions/cache@v4
@@ -171,13 +173,13 @@ runs:
         ref: ${{ inputs.bindings-ref }}
         path: bindings-repo
 
-    - name: Setup bindings environment
+    - name: Setup bindings enviroment
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.9
+      uses: robinraju/release-downloader@v1
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -201,12 +203,15 @@ runs:
       shell: bash
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
+        # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
+        # for mac
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
 
         geode sdk install "${{ github.workspace }}/geode-sdk-clone"
 
+        # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
@@ -242,6 +247,7 @@ runs:
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
+          # geode itself sets these, but only since beta.20
           export CFLAGS="--target=i686-windows-msvc"
           export CXXFLAGS="--target=i686-windows-msvc"
           export LDFLAGS="--target=i686-windows-msvc"
