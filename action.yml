@@ -159,13 +159,20 @@ runs:
         sudo apt-get install --only-upgrade libstdc++6
       if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
 
-    - name: Update LLVM
+    - name: Update LLVM (Windows)
       if: steps.platform.outputs.id == 'win'
       shell: bash
       run: |
         curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -o llvm-inst.exe
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
         echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
+
+    - name: Install LLVM (MacOS)
+      shell: bash
+      run: |
+        brew install llvm
+        echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+      if: steps.platform.outputs.id == 'mac'
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
@@ -243,7 +250,7 @@ runs:
         cd "${{ inputs.path }}"
         CMAKE_EXTRA_ARGS=""
         if [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF"
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF -DCMAKE_AR='/usr/bin/ar' -DCMAKE_RANLIB='/usr/bin/ranlib'"
         elif [ ${{ steps.platform.outputs.target_id }} = "android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
