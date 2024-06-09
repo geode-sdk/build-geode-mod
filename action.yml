@@ -234,8 +234,8 @@ runs:
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print -quit)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
-          geode sdk update "$TARGET_GEODE_VERSION"
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
+          geode sdk update "v$TARGET_GEODE_VERSION"
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "v$TARGET_GEODE_VERSION"
         fi
         
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
