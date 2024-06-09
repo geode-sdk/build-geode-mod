@@ -167,12 +167,12 @@ runs:
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
         echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
 
-    - name: Install LLVM (MacOS)
-      shell: bash
-      run: |
-        brew install llvm
-        echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-      if: steps.platform.outputs.id == 'mac'
+    # - name: Install LLVM (MacOS)
+    #   shell: bash
+    #   run: |
+    #     brew install llvm
+    #     echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+    #   if: steps.platform.outputs.id == 'mac'
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
