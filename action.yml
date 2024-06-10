@@ -31,7 +31,7 @@ inputs:
     required: false
     default: false
   target:
-    description: Geode target to build for. Can be either "Win32", "MacOS", "Android32" or "Android64".
+    description: Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
     required: false
     default: ""
   bindings:
@@ -75,13 +75,13 @@ runs:
       id: platform
       shell: bash
       run: |
-        DEFAULT_TARGET=Win32
+        DEFAULT_TARGET=Win64
         if [ "$RUNNER_OS" = "Linux" ]; then
           ID=linux
           DEFAULT_TARGET=Android64
         elif [ "$RUNNER_OS" = "Windows" ]; then
           ID=win
-          DEFAULT_TARGET=Win32
+          DEFAULT_TARGET=Win64
         elif [ "$RUNNER_OS" = "macOS" ]; then
           ID=mac
           DEFAULT_TARGET=MacOS
@@ -96,7 +96,7 @@ runs:
           OUTPUT_ID=android32
         elif [ "$TARGET" = "Android64" ]; then
           OUTPUT_ID=android64
-        elif [ "$TARGET" = "Win32" ]; then
+        elif [ "$TARGET" = "Win64" ]; then
           OUTPUT_ID=win
         elif [ "$TARGET" = "MacOS" ]; then
           OUTPUT_ID=mac

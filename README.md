@@ -40,9 +40,9 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     combine: ''
 
-    # Geode target to build for. Can be either "Win32", "MacOS", "Android32" or "Android64".
+    # Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
     # Defaults to what is appropriate for the current platform, so:
-    # Defaults to Win32 on windows runners
+    # Defaults to Win64 on windows runners
     # Defaults to MacOS on macOS runners
     # Defaults to Android64 on linux runners
     target: ''
