@@ -230,12 +230,15 @@ runs:
         elif [ "${{ inputs.sdk }}" == "latest" ]; then
           geode sdk update stable
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
-        else
+        elif [ "${{ inputs.sdk }}" == "given" ]; then
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print -quit)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
           geode sdk update "$TARGET_GEODE_VERSION"
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
+        else
+          geode sdk update ${{ inputs.sdk }}
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
         
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
