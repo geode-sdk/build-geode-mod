@@ -31,7 +31,7 @@ inputs:
     required: false
     default: false
   target:
-    description: Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
+    description: Geode target to build for. Can be either "Win64", "MacOS", "iOS", "Android32" or "Android64".
     required: false
     default: ""
   bindings:
@@ -100,6 +100,8 @@ runs:
           OUTPUT_ID=win
         elif [ "$TARGET" = "MacOS" ]; then
           OUTPUT_ID=mac
+        elif [ "$TARGET" = "iOS" ]; then
+          OUTPUT_ID=ios
         fi
 
         echo "id=$ID" >> $GITHUB_OUTPUT
@@ -187,7 +189,19 @@ runs:
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
-    - name: Download CLI
+    - name: Download CLI (iOS)
+      uses: robinraju/release-downloader@v1.9
+      with:
+        repository: geode-ios/cli
+        latest: ${{ inputs.cli == 'latest' }}
+        tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
+        fileName: "*-${{ steps.platform.outputs.id }}.zip"
+        tarBall: false
+        zipBall: false
+        out-file-path: "cli"
+      if: steps.platform.outputs.target_id == 'ios'
+
+    - name: Download CLI (not iOS)
       uses: robinraju/release-downloader@v1.9
       with:
         repository: geode-sdk/cli
@@ -197,6 +211,7 @@ runs:
         tarBall: false
         zipBall: false
         out-file-path: "cli"
+      if: steps.platform.outputs.target_id != 'ios'
 
     - name: Setup CLI
       shell: bash
@@ -234,13 +249,19 @@ runs:
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print -quit)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
-          geode sdk update "$TARGET_GEODE_VERSION"
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
+          echo "!! WARNING !!"
+          echo "building against NIGHTLY as WORKAROUND"
+          geode sdk update nightly
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
+
+          #uncomment these when geode ios releases:
+          # geode sdk update "$TARGET_GEODE_VERSION"
+          # geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
         else
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
-        
+
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
@@ -258,6 +279,9 @@ runs:
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
+        elif [ ${{ steps.platform.outputs.target_id }} = "ios" ]; then
+          echo "HAIIIIIIIIIIIIIIIIIIIIIII I RAN MEOW MEOW"
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_SYSTEM_NAME=iOS -DGEODE_DONT_BUILD_TEST_MODS=ON"
         fi
         if [ "${{ inputs.use-lto }}" = "true" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON"
