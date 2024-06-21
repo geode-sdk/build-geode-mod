@@ -291,7 +291,7 @@ runs:
 
     - name: Upload artifacts
       if: ${{ inputs.combine }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
         path: |
