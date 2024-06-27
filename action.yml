@@ -187,26 +187,10 @@ runs:
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
-    - name: Download CLI
-      uses: robinraju/release-downloader@v1.9
-      with:
-        repository: geode-sdk/cli
-        latest: ${{ inputs.cli == 'latest' }}
-        tag: ${{ inputs.cli != 'latest' && inputs.cli || '' }}
-        fileName: "*-${{ steps.platform.outputs.id }}.zip"
-        tarBall: false
-        zipBall: false
-        out-file-path: "cli"
-
     - name: Setup CLI
-      shell: bash
-      run: |
-        7z x "cli/*-${{ steps.platform.outputs.id }}.zip" -ocli
-        echo "${{ github.workspace }}/cli" >> $GITHUB_PATH
-
-        if [ ${{ steps.platform.outputs.id }} != "win" ]; then
-          chmod +x "cli/geode"
-        fi
+      uses: geode-sdk/cli/.github/actions/setup@main
+      with:
+        version: ${{ inputs.cli }}
 
     - name: Setup Geode SDK
       shell: bash
