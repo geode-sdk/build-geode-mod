@@ -10,7 +10,7 @@ env:
   test-mod-path: example-mod-test
   test-geode-nightly: false
 
-  geode-sdk-type: null
+  geode-sdk-type: ''
 
 jobs:
   fetch-geode-version:
@@ -19,23 +19,12 @@ jobs:
     outputs:
       geode_ver: ${{ steps.get_version.outputs.geode_version }}
     steps:
-    - name: Checkout VERSION from geode-sdk/geode
-      uses: actions/checkout@v4
-      if: env.test-geode-nightly == true
-      with:
-        repository: geode-sdk/geode
-        ref: nightly
-        sparse-checkout: |
-            VERSION
-        sparse-checkout-cone-mode: false
-        path: temp-geode
-    
     - name: Get latest release tag
       id: get_version
       run: |
         # Get latest Geode version
         if [ ${{ env.test-geode-nightly }} == true ]; then
-          GEODE_VERSION=$(cat temp-geode/VERSION)
+          GEODE_VERSION=$(curl -s https://raw.githubusercontent.com/geode-sdk/geode/nightly/VERSION)
         else
           GEODE_VERSION=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/geode-sdk/geode/releases/latest | jq -r .tag_name)
         fi
