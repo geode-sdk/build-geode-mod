@@ -13,6 +13,36 @@ env:
   geode-sdk-type: null
 
 jobs:
+  fetch-geode-version:
+    name: Get Geode Version
+    runs-on: ubuntu-latest
+    outputs:
+      geode_ver: ${{ steps.get_version.outputs.geode_version }}
+    steps:
+    - name: Checkout VERSION from geode-sdk/geode
+      uses: actions/checkout@v4
+      if: env.test-geode-nightly == true
+      with:
+        repository: geode-sdk/geode
+        ref: nightly
+        sparse-checkout: |
+            VERSION
+        sparse-checkout-cone-mode: false
+        path: temp-geode
+    
+    - name: Get latest release tag
+      id: get_version
+      run: |
+        # Get latest Geode version
+        if [ ${{ env.test-geode-nightly }} == true ]; then
+          GEODE_VERSION=$(cat temp-geode/VERSION)
+        else
+          GEODE_VERSION=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/geode-sdk/geode/releases/latest | jq -r .tag_name)
+        fi
+
+        GEODE_VERSION=${GEODE_VERSION#v}
+        echo "geode_version=$GEODE_VERSION" >> $GITHUB_OUTPUT
+
   build:
     strategy:
       fail-fast: false
@@ -31,6 +61,7 @@ jobs:
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    needs: ['fetch-geode-version']
 
     steps:
       - uses: actions/checkout@v4
@@ -40,39 +71,11 @@ jobs:
           repository: geode-sdk/example-mod
           path: ${{ env.test-mod-path }}
 
-      - name: Checkout VERSION from geode-sdk/geode
-        uses: actions/checkout@v4
-        if: env.test-geode-nightly == true
-        with:
-          repository: geode-sdk/geode
-          ref: nightly
-          sparse-checkout: |
-            VERSION
-          sparse-checkout-cone-mode: false
-          path: temp-geode
-
       - name: Modify Example Mod Files
         shell: bash
         run: |
-          # get latest tag
-          if [ -d "temp-geode" && ${{ env.test-geode-nightly }} == true ]; then
-            GEODE_VERSION=$(cat temp-geode/VERSION)
-          else
-            if [ -d "temp-geode" ]; then
-              rm -rf temp-geode
-            fi
-            mkdir temp-geode
-            git -C "temp-geode" init
-            git -C "temp-geode" remote add origin https://github.com/geode-sdk/geode.git
-            git -C "temp-geode" fetch --tags --depth=1
-            GEODE_VERSION=$(git -C "temp-geode" describe --tags `git -C "temp-geode" rev-list --tags --max-count=1`)
-            if [ $GEODE_VERSION == "nightly" ]; then
-              GEODE_VERSION=$(git -C "temp-geode" describe --tags `git -C "temp-geode" rev-list --tags --max-count=2`)
-              GEODE_VERSION=${GEODE_VERSION#nightly}
-              GEODE_VERSION=${GEODE_VERSION//[$'\t\r\n']}
-            fi
-          fi
-          GEODE_VERSION=${GEODE_VERSION#v}
+          # Get Geode version from the previous step
+          GEODE_VERSION="${{ needs.fetch-geode-version.outputs.geode_ver }}"
           if [ $GEODE_VERSION == null ]; then 
             echo "Could not get the latest version for testing"
             exit 1;
@@ -104,12 +107,10 @@ jobs:
           
           # Write thing to GitHub ENV
           echo "geode-sdk-type=$(${{ env.test-geode-nightly }} == true ? "nightly" : "given")" >> GITHUB_ENV
-          
-          # Delete temp-geode folder
-          rm -rf temp-geode
 
-          # Print Geode Version
-          echo "Version: $GEODE_VERSION\nNightly?: ${{ env.test-geode-nightly }}"
+          # Print Geode Version and if we are running nightly
+          echo "Version: $GEODE_VERSION"
+          echo "Nightly?: ${{ env.test-geode-nightly }}"
 
       - name: Build the mod
         uses: ./
