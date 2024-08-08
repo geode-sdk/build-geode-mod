@@ -95,7 +95,7 @@ jobs:
           echo $updated_mod_json > $mod_json_path
           
           # Write thing to GitHub ENV
-          echo "geode-sdk-type=$(${{ env.test-geode-nightly }} == true ? "nightly" : "given")" >> GITHUB_ENV
+          echo "geode-sdk-type=$(${{ env.test-geode-nightly }} == true ? "nightly" : "given")" >> $GITHUB_ENV
 
           # Print Geode Version and if we are running nightly
           echo "Version: $GEODE_VERSION"
