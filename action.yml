@@ -274,7 +274,7 @@ runs:
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
 
     - name: Upload artifacts
-      if: ${{ inputs.combine }}
+      if: ${{ inputs.combine == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
