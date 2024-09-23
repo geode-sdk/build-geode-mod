@@ -141,7 +141,7 @@ runs:
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
           cpm-${{ steps.platform.outputs.target_id }}-v1-
-      if: inputs.use-cpm-cache
+      if: ${{ inputs.use-cpm-cache == 'true' }}
 
     - name: Install Ninja
       shell: bash
