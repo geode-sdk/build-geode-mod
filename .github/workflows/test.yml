@@ -31,15 +31,15 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: geode-sdk/NodeIDs
-          path: NodeIDs
+          repository: geode-sdk/textureldr
+          path: textureldr
 
       - name: Build the mod
         uses: ./
         with:
           # sdk: nightly
           build-config: RelWithDebInfo
-          path: NodeIDs
+          path: textureldr
           combine: true
           target: ${{ matrix.config.target }}
 
