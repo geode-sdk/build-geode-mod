@@ -125,6 +125,7 @@ runs:
         7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
+        echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
     # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
