@@ -6,7 +6,32 @@ on:
     branches:
       - '**'
 
+env:
+  test-mod-path: example-mod-test
+  test-geode-nightly: false
+
+  geode-sdk-type: ''
+
 jobs:
+  fetch-geode-version:
+    name: Get Geode Version
+    runs-on: ubuntu-latest
+    outputs:
+      geode_ver: ${{ steps.get_version.outputs.geode_version }}
+    steps:
+    - name: Get latest release tag
+      id: get_version
+      run: |
+        # Get latest Geode version
+        if [ ${{ env.test-geode-nightly }} == true ]; then
+          GEODE_VERSION=$(curl -s https://raw.githubusercontent.com/geode-sdk/geode/nightly/VERSION)
+        else
+          GEODE_VERSION=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/geode-sdk/geode/releases/latest | jq -r .tag_name)
+        fi
+
+        GEODE_VERSION=${GEODE_VERSION#v}
+        echo "geode_version=$GEODE_VERSION" >> $GITHUB_OUTPUT
+
   build:
     strategy:
       fail-fast: false
@@ -25,26 +50,68 @@ jobs:
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    needs: ['fetch-geode-version']
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/checkout@v4
         with:
-          repository: geode-sdk/textureldr
-          path: textureldr
+          repository: geode-sdk/example-mod
+          path: ${{ env.test-mod-path }}
+
+      - name: Modify Example Mod Files
+        shell: bash
+        run: |
+          # Get Geode version from the previous step
+          GEODE_VERSION="${{ needs.fetch-geode-version.outputs.geode_ver }}"
+          if [ $GEODE_VERSION == null ]; then 
+            echo "Could not get the latest version for testing"
+            exit 1;
+          fi
+
+          # Set path of mod.json file
+          mod_json_path="${{ env.test-mod-path }}/mod.json"
+
+          # Read the current mod.json content
+          mod_json=$(cat $mod_json_path)
+
+          # Replace the placeholders
+          updated_mod_json=$(echo "$mod_json" | jq \
+            --arg geode_version "$GEODE_VERSION" \
+            --arg mod_id "geode.example" \
+            --arg mod_name "Example Mod" \
+            --arg mod_version "0.0.0" \
+            --arg mod_description "The example Geode mod!" \
+            --arg developer "Geode Team" \
+            '.geode = $geode_version |
+            .id = $mod_id |
+            .name = $mod_name |
+            .version = $mod_version |
+            .description = $mod_description |
+            .developer = $developer')
+
+          # Write updated_mod_json variable contents to mod.json file
+          echo $updated_mod_json > $mod_json_path
+          
+          # Write thing to GitHub ENV
+          echo "geode-sdk-type=$(${{ env.test-geode-nightly }} == true ? "nightly" : "given")" >> $GITHUB_ENV
+
+          # Print Geode Version and if we are running nightly
+          echo "Version: $GEODE_VERSION"
+          echo "Nightly?: ${{ env.test-geode-nightly }}"
 
       - name: Build the mod
         uses: ./
         with:
-          # sdk: nightly
+          sdk: ${{ env.geode-sdk-type }}
           build-config: RelWithDebInfo
-          path: textureldr
+          path: ${{ env.test-mod-path }}
           combine: true
           target: ${{ matrix.config.target }}
 
   package:
-    name: Package both builds
+    name: Package builds
     runs-on: ubuntu-latest
     needs: ['build']
 
