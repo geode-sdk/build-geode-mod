@@ -3,12 +3,11 @@ An easy to use action to build a geode mod within github actions.
 
 This repository contains two actions, one for just building the mods, and another for combining builds for multiple platforms into a single .geode file.
 
-If you're just here to copy paste the action, look at the examples folder: \
-https://github.com/geode-sdk/build-geode-mod/tree/main/examples
+If you're just here to copy paste the action, look at the [examples folder](/examples).
 
 # Usage
 ```yml
-- uses: geode-sdk/build-geode-mod@main
+- uses: geode-catgirls/build-geode-mod@main
   with:
     # Which version of the SDK to use.
     # Set to 'nightly' for latest commit, 'latest' for latest release
@@ -63,9 +62,9 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
 
 # Examples
 
-## Building and uploading a mod on latest sdk
+## Building and uploading a mod on latest SDK
 ```yml
-- uses: geode-sdk/build-geode-mod@main
+- uses: geode-catgirls/build-geode-mod@main
   id: build
 
 - uses: actions/upload-artifact@v3
@@ -76,7 +75,7 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
 
 ## Building with RelWithDebInfo
 ```yml
-- uses: geode-sdk/build-geode-mod@main
+- uses: geode-catgirls/build-geode-mod@main
   id: build
   with:
     build-config: RelWithDebInfo
@@ -92,6 +91,5 @@ Usually this is done using a matrix, and due to limitations on how much actions 
 
 To do this, make sure to set `combine: true` on the build action!
 
-## Building a mod on mac, android armv7 and armv8, windows, and then combining it
-Full workflow: \
-https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml
+## Building a mod on mac, android armv7 and armv8, windows, ios, and then combining it
+[Full workflow](/examples/multi-platform.yml)
