@@ -45,7 +45,7 @@ jobs:
           target: ${{ matrix.config.target }}
 
   package:
-    name: Package both builds
+    name: Package builds
     runs-on: ubuntu-latest
     needs: build
 
