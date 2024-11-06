@@ -3,7 +3,10 @@ description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release
+    description: |
+      Which version of the SDK to use, defaults to latest release.
+      Set to 'given' to use the version specified in mod.json,
+      'nightly' for latest commit, 'latest' for latest release.
     required: false
     default: given
   cli:
@@ -19,11 +22,11 @@ inputs:
     required: false
     default: ""
   build-config:
-    description: Which build configuration to use. Defaults to Release
+    description: Which build configuration to use. Defaults to Release.
     required: false
     default: Release
   path:
-    description: Path to the project which to build. Defaults to current directory.
+    description: Path to the project to build. Defaults to the current directory.
     required: false
     default: ./
   combine:
@@ -31,41 +34,41 @@ inputs:
     required: false
     default: false
   target:
-    description: Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
+    description: Geode target to build for. Can be one of "Win64", "MacOS", "Android32", or "Android64".
     required: false
     default: ""
   bindings:
-    description: What repository to use for bindings. Must be in the format "user/repo"
+    description: What repository to use for bindings. Must be in the format "user/repo".
     required: false
     default: "geode-sdk/bindings"
   bindings-ref:
-    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
+    description: Which commit/branch to use for bindings. Defaults to the latest commit in the main branch.
     required: false
     default: ""
   android-min-sdk:
-    description: The android min SDK version to target. Defaults to 23
+    description: The Android minimum SDK version to target. Defaults to 23.
     required: false
     default: 23
   ccache-variant:
-    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache
+    description: The ccache variant to use (empty, ccache, or sccache). Defaults to sccache.
     required: false
     default: sccache
   use-cpm-cache:
-    description: Whether to cache CPM sources. Defaults to true
+    description: Whether to cache CPM sources. Defaults to true.
     required: false
     default: true
   export-pdb:
-    description: Whether to export PDB files for Windows builds. Defaults to false
+    description: Whether to export PDB files for Windows builds. Defaults to false.
     required: false
     default: false
   use-lto:
-    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
+    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true.
     required: false
     default: true
 
 outputs:
   build-output:
-    description: A folder containing the built .geode file(s)
+    description: A folder containing the built .geode file(s).
     value: ${{ steps.build.outputs.output }}
 
 runs:
@@ -106,9 +109,8 @@ runs:
         echo "target=$TARGET" >> $GITHUB_OUTPUT
         echo "target_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
 
-    # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
-      uses: robinraju/release-downloader@v1.9
+      uses: robinraju/release-downloader@v1
       with:
         repository: cgytrus/sccache
         latest: true
@@ -127,9 +129,8 @@ runs:
         chmod +x "epic-sccache/sccache"
         echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
-    # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
-      uses: chirag-droid/ccache-action@main
+      uses: hendrikmuhs/ccache-action@main
       with:
         variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
@@ -150,7 +151,7 @@ runs:
         curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
-    
+
     - name: Fix Ubuntu weirdness
       shell: bash
       run: |
@@ -168,13 +169,6 @@ runs:
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
         echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
 
-    # - name: Install LLVM (MacOS)
-    #   shell: bash
-    #   run: |
-    #     brew install llvm
-    #     echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-    #   if: steps.platform.outputs.id == 'mac'
-
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       uses: actions/checkout@v4
@@ -183,12 +177,12 @@ runs:
         ref: ${{ inputs.bindings-ref }}
         path: bindings-repo
 
-    - name: Setup bindings enviroment
+    - name: Setup bindings environment
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
-    - name: Setup CLI
+    - name: Setup Geode CLI
       uses: geode-sdk/cli/.github/actions/setup@main
       with:
         version: ${{ inputs.cli }}
@@ -197,15 +191,11 @@ runs:
       shell: bash
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
-        # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
-        # for mac
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
-
         geode sdk install "${{ github.workspace }}/geode-sdk-clone"
 
-        # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
@@ -225,7 +215,7 @@ runs:
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
-        
+
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
@@ -234,8 +224,8 @@ runs:
       shell: bash
       run: |
         mkdir -p $HOME/.cache
-
         cd "${{ inputs.path }}"
+        
         CMAKE_EXTRA_ARGS=""
         if [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF -DCMAKE_AR='/usr/bin/ar' -DCMAKE_RANLIB='/usr/bin/ranlib'"
@@ -244,14 +234,15 @@ runs:
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_STL=c++_shared -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         fi
+        
         if [ "${{ inputs.use-lto }}" = "true" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON"
         fi
+        
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.workspace }}/output"
-
         for file in $(find ./build -name *.geode); do
           cp $file "${{ github.workspace }}/output"
         done
@@ -274,7 +265,7 @@ runs:
         fi
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
 
-    - name: Upload artifacts
+    - name: Upload build artifacts
       if: ${{ inputs.combine }}
       uses: actions/upload-artifact@v4
       with:
