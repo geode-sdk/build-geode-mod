@@ -12,24 +12,26 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - name: Windows
-          os: windows-latest
-        - name: macOS
-          os: macos-latest
-        - name: Android32
-          os: ubuntu-latest
-          target: Android32
-        - name: Android64
-          os: ubuntu-latest
-          target: Android64
+          - name: Windows
+            os: windows-latest
+          - name: macOS
+            os: macos-latest
+          - name: Android32
+            os: ubuntu-latest
+            target: Android32
+          - name: Android64
+            os: ubuntu-latest
+            target: Android64
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+      - name: Checkout textureldr repository
+        uses: actions/checkout@v4
         with:
           repository: geode-sdk/textureldr
           path: textureldr
@@ -37,7 +39,6 @@ jobs:
       - name: Build the mod
         uses: ./
         with:
-          # sdk: nightly
           build-config: RelWithDebInfo
           path: textureldr
           combine: true
@@ -46,15 +47,18 @@ jobs:
   package:
     name: Package both builds
     runs-on: ubuntu-latest
-    needs: ['build']
+    needs: build
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: ./combine
+      - name: Combine builds
+        uses: ./combine
         id: build
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: Build Output
+          name: Build Artifact
           path: ${{ steps.build.outputs.build-output }}
