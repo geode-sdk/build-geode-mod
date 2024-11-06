@@ -1,17 +1,22 @@
 # build-geode-mod
-An easy to use action to build a geode mod within github actions.
 
-This repository contains two actions, one for just building the mods, and another for combining builds for multiple platforms into a single .geode file.
+An easy-to-use GitHub Action for building Geode mods within GitHub Actions.
 
-If you're just here to copy paste the action, look at the examples folder: \
-https://github.com/geode-sdk/build-geode-mod/tree/main/examples
+This repository contains two actions:
+- One for building mods.
+- Another for combining builds for multiple platforms into a single `.geode` file.
 
-# Usage
-```yml
+If you’re here to copy-paste the action, check out the [examples folder](https://github.com/geode-sdk/build-geode-mod/tree/main/examples).
+
+---
+
+## Usage
+
+```yaml
 - uses: geode-sdk/build-geode-mod@main
   with:
     # Which version of the SDK to use.
-    # Set to 'nightly' for latest commit, 'latest' for latest release
+    # Set to 'nightly' for the latest commit, 'latest' for the latest release.
     # Default: latest
     sdk: ''
 
@@ -33,65 +38,77 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     export-pdb: ''
 
-    # Path to the project which to build. Defaults to current directory.
+    # Path to the project to build. Defaults to the current directory.
     path: ''
 
-    # Set this to true if you plan on merging .geode files later. See the README for more info.
+    # Set this to true if you plan on merging .geode files later.
     # Default: false
     combine: ''
 
-    # Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
-    # Defaults to what is appropriate for the current platform, so:
-    # Defaults to Win64 on windows runners
-    # Defaults to MacOS on macOS runners
-    # Defaults to Android64 on linux runners
+    # Geode target to build for. Can be one of:
+    # "Win64", "MacOS", "Android32", "Android64".
+    # Defaults to the appropriate platform for the runner:
+    # - Win64 on Windows runners
+    # - MacOS on macOS runners
+    # - Android64 on Linux runners
     target: ''
 
-    # What repository to use for bindings. Must be in the format "user/repo". Not required.
+    # Repository to use for bindings. Must be in the format "user/repo". Not required.
     bindings: ''
 
-    # Which commit/branch to use for bindings. Defaults to latest commit in main branch. Not required.
+    # Which commit/branch to use for bindings. Defaults to the latest commit in the main branch. Not required.
     bindings-ref: ''
 
-    # The android min SDK version to target. Defaults to 23. Not required.
+    # The Android minimum SDK version to target. Defaults to 23. Not required.
     android-min-sdk: ''
 
-    # Whether to use Link Time Optimization, improving build size at the cost of build time.
+    # Whether to use Link Time Optimization (LTO) for smaller build size at the cost of longer build time.
     # Default: true
     use-lto: ''
 ```
 
-# Examples
+---
 
-## Building and uploading a mod on latest sdk
-```yml
+## Examples
+
+### Building and Uploading a Mod on Latest SDK
+
+```yaml
 - uses: geode-sdk/build-geode-mod@main
   id: build
 
-- uses: actions/upload-artifact@v3
+- uses: actions/upload-artifact@v4
   with:
     name: My mod
     path: ${{ steps.build.outputs.build-output }}
 ```
 
-## Building with RelWithDebInfo
-```yml
+### Building with `RelWithDebInfo`
+
+```yaml
 - uses: geode-sdk/build-geode-mod@main
   id: build
   with:
     build-config: RelWithDebInfo
-    # Bundle the pdb inside the .geode file
-    # Be warned, they can be quite big
+    # Bundle the PDB inside the .geode file
+    # Be aware that PDB files can be large
     export-pdb: true
 ```
 
-# Combine
-It is also possible to build mods for different platforms, and then afterwards combine them into a single .geode file.
+---
 
-Usually this is done using a matrix, and due to limitations on how much actions can do, you will have to add another job for the combining.
+## Combine
 
-To do this, make sure to set `combine: true` on the build action!
+You can build mods for different platforms and then combine them into a single `.geode` file.
 
-## Building a mod on mac, android armv7 and armv8, windows, and then combining it
-Full workflow: \
-https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml
+This process is usually done using a matrix. Due to GitHub Actions limitations, you will need to add a separate job to combine the builds.
+
+Make sure to set `combine: true` in the build action.
+
+### Example Workflow: Building and Combining for Multiple Platforms
+
+To build a mod for macOS, Android (ARMv7 and ARMv8), and Windows, and then combine them, see the full workflow:
+
+[Multi-Platform Example Workflow](https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml)
+
+---
