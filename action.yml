@@ -254,7 +254,7 @@ runs:
         fi
         if [ "${{ inputs.bundle-pdb }}" = "true" ]; then
           MOD_ID=$(jq -r '.id' mod.json)
-          PDB_ARGS+=("-DCMAKE_CXX_FLAGS=\"-Xlinker" "/PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb\"")
+          PDB_ARGS+=(-DCMAKE_CXX_FLAGS="-Xlinker /PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb")
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
         set -x
