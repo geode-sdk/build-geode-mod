@@ -253,7 +253,7 @@ runs:
         fi
         if [ "${{ inputs.bundle-pdb }}" = "true" ]; then
           MOD_ID=$(jq -r '.id' mod.json)
-          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON -D\"CMAKE_SHARED_LINKER_FLAGS=-Xlinker /PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb\""
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON \"-DCMAKE_SHARED_LINKER_FLAGS=-Xlinker /PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb\""
         fi
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
