@@ -241,6 +241,7 @@ runs:
 
         cd "${{ inputs.path }}"
         CMAKE_EXTRA_ARGS=""
+        PDB_ARGS=()
         if [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF -DCMAKE_AR='/usr/bin/ar' -DCMAKE_RANLIB='/usr/bin/ranlib'"
         elif [ ${{ steps.platform.outputs.target_id }} = "android32" ]; then
@@ -253,9 +254,10 @@ runs:
         fi
         if [ "${{ inputs.bundle-pdb }}" = "true" ]; then
           MOD_ID=$(jq -r '.id' mod.json)
-          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON \"-DCMAKE_CXX_FLAGS=-Xlinker /PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb\""
+          PDB_ARGS=("-DCMAKE_CXX_FLAGS=\"-Xlinker" "/PDBALTPATH:geode/unzipped/$MOD_ID/$MOD_ID.pdb\"")
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
-        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS ${PDB_ARGS[@]} -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.workspace }}/output"
