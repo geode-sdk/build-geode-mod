@@ -18,6 +18,10 @@ jobs:
         - name: macOS
           os: macos-latest
 
+        - name: iOS
+          os: macos-latest
+          target: iOS
+
         - name: Android32
           os: ubuntu-latest
           target: Android32
@@ -33,10 +37,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build the mod
-        uses: geode-sdk/build-geode-mod@main
+        #uses: geode-sdk/build-geode-mod@main
+        uses: geode-catgirls/build-geode-mod@main
         with:
-          bindings: geode-sdk/bindings
-          bindings-ref: main
+          #bindings: geode-sdk/bindings
+          #bindings-ref: main
           combine: true
           target: ${{ matrix.config.target }}
 
@@ -46,7 +51,8 @@ jobs:
     needs: ['build']
 
     steps:
-      - uses: geode-sdk/build-geode-mod/combine@main
+      #- uses: geode-sdk/build-geode-mod/combine@main
+      - uses: geode-catgirls/build-geode-mod/combine@main
         id: build
 
       - uses: actions/upload-artifact@v4
