@@ -125,6 +125,7 @@ runs:
         7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
         echo "$GITHUB_WORKSPACE/epic-sccache" >> $GITHUB_PATH
         chmod +x "epic-sccache/sccache"
+        echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
     # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
@@ -215,7 +216,7 @@ runs:
           geode sdk update stable
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         elif [ "${{ inputs.sdk }}" == "given" ]; then
-          export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print -quit)
+          export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print | sort -r | head -n 1)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
           geode sdk update "$TARGET_GEODE_VERSION"
