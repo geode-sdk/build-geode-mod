@@ -146,7 +146,7 @@ runs:
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
           cpm-${{ steps.platform.outputs.target_id }}-v1-
-      if: inputs.use-cpm-cache
+      if: ${{ inputs.use-cpm-cache == 'true' }}
 
     - name: Install Ninja
       shell: bash
@@ -285,7 +285,7 @@ runs:
         echo "output=$OUTPUT_DIR" >> $GITHUB_OUTPUT
 
     - name: Upload artifacts
-      if: ${{ inputs.combine }}
+      if: ${{ inputs.combine == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
