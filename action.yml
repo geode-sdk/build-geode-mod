@@ -62,6 +62,14 @@ inputs:
     description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
+  export-symbols:
+    description: Whether to export Breakpad symbols for Android builds. Defaults to false
+    required: false
+    default: false
+  strip-debug:
+    description: Whether to strip debug information from Android builds. Defaults to false
+    required: false
+    default: false
 
 outputs:
   build-output:
@@ -150,6 +158,15 @@ runs:
         curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
+
+    - name: Install dump_syms
+      if: inputs.export-symbols == 'true' && steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+      shell: bash
+      run: |
+        curl -L https://github.com/mozilla/dump_syms/releases/latest/download/dump_syms-x86_64-unknown-linux-gnu.tar.xz -o dump_syms.tar.xz
+        xz -d dump_syms.tar.xz
+        tar -xf dump_syms.tar
+        echo "$GITHUB_WORKSPACE/dump_syms-x86_64-unknown-linux-gnu" >> $GITHUB_PATH
     
     - name: Fix Ubuntu weirdness
       shell: bash
@@ -260,6 +277,19 @@ runs:
           if [ "${{ inputs.export-pdb }}" = "true" ]; then
             for file in $(find ./build -name *.pdb); do
               cp $file "${{ github.workspace }}/output"
+            done
+          fi
+        fi
+
+        if [ ${{ steps.platform.outputs.id }} = "linux" ]; then
+          if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
+            for file in $(find ./build -name *.so); do
+              if [ "${{ inputs.export-symbols }}" = "true" ]; then
+                dump_syms $file -o ./output/$(basename $file).sym
+              fi
+              if [ "${{ inputs.strip-debug }}" = "true" ]; then
+                $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip $file
+              fi
             done
           fi
         fi
