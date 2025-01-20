@@ -66,10 +66,6 @@ inputs:
     description: Whether to export Breakpad symbols for Android builds. Defaults to false
     required: false
     default: false
-  strip-debug:
-    description: Whether to strip debug information from Android builds. Defaults to false
-    required: false
-    default: false
 
 outputs:
   build-output:
@@ -286,9 +282,6 @@ runs:
             for file in $(find ./build -name *.so); do
               if [ "${{ inputs.export-symbols }}" = "true" ]; then
                 dump_syms $file -o "${{ github.workspace }}/output/$(basename $file).sym"
-              fi
-              if [ "${{ inputs.strip-debug }}" = "true" ]; then
-                $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip $file
               fi
             done
           fi
