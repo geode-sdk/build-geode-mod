@@ -73,6 +73,13 @@ runs:
         if [ -f "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" ]; then
           cp "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" out
         fi
+        # Copy symbol dumps from Android artifacts
+        if [ -f "./artifacts/geode-build-android32/$(basename $FIRST .geode).android32.so.sym" ]; then
+          cp "./artifacts/geode-build-android32/$(basename $FIRST .geode).android32.so.sym" out
+        fi
+        if [ -f "./artifacts/geode-build-android64/$(basename $FIRST .geode).android64.so.sym" ]; then
+          cp "./artifacts/geode-build-android64/$(basename $FIRST .geode).android64.so.sym" out
+        fi
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v5
