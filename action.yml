@@ -281,7 +281,7 @@ runs:
           if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
             if [ "${{ inputs.export-symbols }}" = "true" ]; then
               for file in $(find ./build -name *.so); do
-                  dump_syms $file -o "${{ github.workspace }}/output/$(basename $file).sym"
+                dump_syms $file -o "${{ github.workspace }}/output/$(basename $file).sym"
               done
             fi
           fi
