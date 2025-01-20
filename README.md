@@ -33,7 +33,8 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     export-pdb: ''
 
-    # Whether to bundle PDB files into the .geode package. Not required. Requires Geode SDK v4.2.0 at minimum.
+    # Whether to bundle PDB files into the .geode package. Not required.
+    # Requires SDK v4.2.0 and CLI v3.3.0 at minimum.
     # Default: false
     bundle-pdb: ''
 
