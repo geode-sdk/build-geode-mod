@@ -312,3 +312,4 @@ runs:
         path: |
           ${{ steps.build.outputs.output }}/*.geode
           ${{ steps.build.outputs.output }}/*.pdb
+          ${{ steps.build.outputs.output }}/*.sym
