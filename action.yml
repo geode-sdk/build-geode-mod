@@ -285,7 +285,7 @@ runs:
           if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
             for file in $(find ./build -name *.so); do
               if [ "${{ inputs.export-symbols }}" = "true" ]; then
-                dump_syms $file -o ./output/$(basename $file).sym
+                dump_syms $file -o "${{ github.workspace }}/output/$(basename $file).sym"
               fi
               if [ "${{ inputs.strip-debug }}" = "true" ]; then
                 $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip $file
