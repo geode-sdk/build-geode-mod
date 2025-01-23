@@ -269,7 +269,7 @@ runs:
           cp $file "${{ github.workspace }}/output"
           if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
             if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
-              if [ -f "./build/$(basename $file .geode)" ] then
+              if [ -f "./build/$(basename $file .geode)" ]; then
                 dump_syms $(basename $file .geode) -o "${{ github.workspace }}/output/$(basename $file).sym"
               fi
             fi
