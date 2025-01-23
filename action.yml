@@ -266,21 +266,20 @@ runs:
         mkdir "${{ github.workspace }}/output"
 
         for file in $(find ./build -name *.geode); do
-          cp $file "${{ github.workspace }}/output"
+          cp $file "${{ github.workspace }}/output""
+          if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
+            if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
+              if [ -f "./build/$(basename $file .geode)" ] then
+                dump_syms $(basename $file .geode) -o "${{ github.workspace }}/output/$(basename $file).sym"
+              fi
+            fi
+          fi
         done
 
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           if [ "${{ inputs.export-pdb }}" = "true" ]; then
             for file in $(find ./build -name *.pdb); do
-              cp $file "${{ github.workspace }}/output"
-            done
-          fi
-        fi
-
-        if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
-          if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
-            for file in $(find ./build -name *.so); do
-              dump_syms $file -o "${{ github.workspace }}/output/$(basename $file).sym"
+              cp $file "${{ github.workspace }}/output
             done
           fi
         fi
