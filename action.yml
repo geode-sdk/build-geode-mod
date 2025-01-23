@@ -266,7 +266,7 @@ runs:
         mkdir "${{ github.workspace }}/output"
 
         for file in $(find ./build -name *.geode); do
-          cp $file "${{ github.workspace }}/output""
+          cp $file "${{ github.workspace }}/output"
           if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
             if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
               if [ -f "./build/$(basename $file .geode)" ] then
