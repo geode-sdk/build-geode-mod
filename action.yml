@@ -269,8 +269,9 @@ runs:
           cp $file "${{ github.workspace }}/output"
           if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
             if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
-              if [ -f "./build/$(basename $file .geode)" ]; then
-                dump_syms $(basename $file .geode) -o "${{ github.workspace }}/output/$(basename $file).sym"
+              SO_FILE_NAME="$(basename $file .geode).${{ steps.platform.outputs.target_id }}.so"
+              if [ -f "./build/$SO_FILE_NAME" ]; then
+                dump_syms ./build/$SO_FILE_NAME -o "${{ github.workspace }}/output/$SO_FILE_NAME.sym"
               fi
             fi
           fi
