@@ -279,7 +279,7 @@ runs:
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
           if [ "${{ inputs.export-pdb }}" = "true" ]; then
             for file in $(find ./build -name *.pdb); do
-              cp $file "${{ github.workspace }}/output
+              cp $file "${{ github.workspace }}/output"
             done
           fi
         fi
