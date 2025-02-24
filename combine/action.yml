@@ -1,4 +1,5 @@
 name: Combine Geode mods
+
 description: Combines the same Geode mod built for different platforms into a single file
 
 inputs:
@@ -19,8 +20,8 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Download CLI
-      uses: robinraju/release-downloader@v1.10
+    - name: Download Geode CLI
+      uses: robinraju/release-downloader@v1
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -31,14 +32,16 @@ runs:
         extract: true
         out-file-path: ${{ github.action_path }}
 
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    - name: Add action path to PATH
+      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
 
-    - uses: actions/download-artifact@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v4
       with:
         path: "${{ github.action_path }}/artifacts"
     
-    - name: Combine them
+    - name: Combine builds
       shell: bash
       id: merge
       run: |
@@ -62,39 +65,43 @@ runs:
             PACKAGE_ARGS="$PACKAGE_ARGS ./artifacts/geode-build-android64/$mod"
           fi
           ARG_LIST=($PACKAGE_ARGS)
-          # why does it merge into the first one instead of just an output..
+          # Why does it merge into the first one instead of just an output...
           FIRST="${ARG_LIST[0]}"
           if [ ${#ARG_LIST[@]} != 1 ]; then
             geode package merge $PACKAGE_ARGS
           fi
           cp $FIRST out
         done
-        # Copy the .pdb file from windows artifact if it exists
+        # Copy the .pdb file from Windows artifact if it exists
         if [ -f "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" ]; then
           cp "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" out
         fi
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v5
+    - name: Delete Windows artifact
+      uses: GeekyEggo/delete-artifact@v5
       if: ${{ inputs.delete-artifacts }}
       with:
-          name: geode-build-win
-          failOnError: false
-        
-    - uses: geekyeggo/delete-artifact@v5
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-mac
-          failOnError: false
+        name: geode-build-win
+        failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v5
+    - name: Delete macOS artifact
+      uses: GeekyEggo/delete-artifact@v5
       if: ${{ inputs.delete-artifacts }}
       with:
-          name: geode-build-android32
-          failOnError: false
+        name: geode-build-mac
+        failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v5
+    - name: Delete Android32 artifact
+      uses: GeekyEggo/delete-artifact@v5
       if: ${{ inputs.delete-artifacts }}
       with:
-          name: geode-build-android64
-          failOnError: false
+        name: geode-build-android32
+        failOnError: false
+
+    - name: Delete Android64 artifact
+      uses: GeekyEggo/delete-artifact@v5
+      if: ${{ inputs.delete-artifacts }}
+      with:
+        name: geode-build-android64
+        failOnError: false
