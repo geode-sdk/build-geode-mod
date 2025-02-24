@@ -3,8 +3,7 @@ name: Test the action
 on:
   workflow_dispatch:
   push:
-    branches:
-      - '**'
+  pull_request:
 
 jobs:
   build:
@@ -12,24 +11,26 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - name: Windows
-          os: windows-latest
-        - name: macOS
-          os: macos-latest
-        - name: Android32
-          os: ubuntu-latest
-          target: Android32
-        - name: Android64
-          os: ubuntu-latest
-          target: Android64
+          - name: Windows
+            os: windows-latest
+          - name: macOS
+            os: macos-latest
+          - name: Android32
+            os: ubuntu-latest
+            target: Android32
+          - name: Android64
+            os: ubuntu-latest
+            target: Android64
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+      - name: Checkout textureldr
+        uses: actions/checkout@v4
         with:
           repository: geode-sdk/textureldr
           path: textureldr
@@ -44,17 +45,20 @@ jobs:
           target: ${{ matrix.config.target }}
 
   package:
-    name: Package both builds
+    name: Package Both Builds
     runs-on: ubuntu-latest
     needs: ['build']
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: ./combine
+      - name: Combine builds
+        uses: ./combine
         id: build
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
         with:
           name: Build Output
           path: ${{ steps.build.outputs.build-output }}
