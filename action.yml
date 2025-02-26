@@ -1,10 +1,9 @@
 name: Build Geode mod
-
 description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release.
+    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release
     required: false
     default: given
   cli:
@@ -20,7 +19,7 @@ inputs:
     required: false
     default: ""
   build-config:
-    description: Which build configuration to use. Defaults to Release.
+    description: Which build configuration to use. Defaults to Release
     required: false
     default: Release
   path:
@@ -36,31 +35,31 @@ inputs:
     required: false
     default: ""
   bindings:
-    description: What repository to use for bindings. Must be in the format "user/repo".
+    description: What repository to use for bindings. Must be in the format "user/repo"
     required: false
     default: "geode-sdk/bindings"
   bindings-ref:
-    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch.
+    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
     required: false
     default: ""
   android-min-sdk:
-    description: The android min SDK version to target. Defaults to 23.
+    description: The android min SDK version to target. Defaults to 23
     required: false
     default: 23
   ccache-variant:
-    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache.
+    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache
     required: false
     default: sccache
   use-cpm-cache:
-    description: Whether to cache CPM sources. Defaults to true.
+    description: Whether to cache CPM sources. Defaults to true
     required: false
     default: true
   export-pdb:
-    description: Whether to export PDB files for Windows builds. Defaults to false.
+    description: Whether to export PDB files for Windows builds. Defaults to false
     required: false
     default: false
   use-lto:
-    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true.
+    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
 
@@ -109,8 +108,7 @@ runs:
 
     # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
-      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
-      uses: robinraju/release-downloader@v1
+      uses: robinraju/release-downloader@v1.9
       with:
         repository: cgytrus/sccache
         latest: true
@@ -118,6 +116,7 @@ runs:
         tarBall: false
         zipBall: false
         out-file-path: "epic-sccache"
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
 
     - name: Setup custom sccache
       if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
@@ -128,21 +127,22 @@ runs:
         chmod +x "epic-sccache/sccache"
         echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
+    # https://github.com/hendrikmuhs/ccache-action/pull/182
     - name: Setup sccache
-      if: inputs.ccache-variant != ''
-      uses: hendrikmuhs/ccache-action@main
+      uses: chirag-droid/ccache-action@main
       with:
         variant: ${{ inputs.ccache-variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
+      if: inputs.ccache-variant != ''
 
-    - name: Setup CPM cache
-      if: ${{ inputs.use-cpm-cache == 'true' }}
+    - name: Setup CPM Cache
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/cpm-cache
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
           cpm-${{ steps.platform.outputs.target_id }}-v1-
+      if: ${{ inputs.use-cpm-cache == 'true' }}
 
     - name: Install Ninja
       shell: bash
@@ -168,12 +168,12 @@ runs:
         7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
         echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
 
-    # - name: Install LLVM (macOS)
-    #   if: steps.platform.outputs.id == 'mac'
+    # - name: Install LLVM (MacOS)
     #   shell: bash
     #   run: |
     #     brew install llvm
     #     echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+    #   if: steps.platform.outputs.id == 'mac'
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
@@ -188,7 +188,7 @@ runs:
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
-    - name: Setup Geode CLI
+    - name: Setup CLI
       uses: geode-sdk/cli/.github/actions/setup@main
       with:
         version: ${{ inputs.cli }}
@@ -197,15 +197,15 @@ runs:
       shell: bash
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
-        # for Windows
+        # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
-        # for macOS
+        # for mac
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
 
         geode sdk install "${{ github.workspace }}/geode-sdk-clone"
 
-        # Silly GitHub actions won't refresh the environment
+        # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
@@ -229,7 +229,7 @@ runs:
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
-    - name: Build
+    - name: Run CMake and build
       id: build
       shell: bash
       run: |
