@@ -39,6 +39,8 @@ jobs:
         with:
           # sdk: nightly
           build-config: RelWithDebInfo
+          export-pdb: true
+          bundle-pdb: true
           path: textureldr
           combine: true
           target: ${{ matrix.config.target }}

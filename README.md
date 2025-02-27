@@ -33,6 +33,11 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     export-pdb: ''
 
+    # Whether to bundle PDB files into the .geode package. Not required.
+    # Requires SDK v4.2.0 and CLI v3.3.0 at minimum.
+    # Default: false
+    bundle-pdb: ''
+
     # Path to the project which to build. Defaults to current directory.
     path: ''
 
@@ -80,9 +85,11 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
   id: build
   with:
     build-config: RelWithDebInfo
+    # Export the pdb alongside the .geode file
+    export-pdb: true
     # Bundle the pdb inside the .geode file
     # Be warned, they can be quite big
-    export-pdb: true
+    bundle-pdb: true
 ```
 
 # Combine
