@@ -62,6 +62,10 @@ inputs:
     description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
+  export-symbols:
+    description: Whether to export Breakpad symbols for Android builds. Defaults to false
+    required: false
+    default: false
 
 outputs:
   build-output:
@@ -150,6 +154,15 @@ runs:
         curl -L https://github.com/ninja-build/ninja/releases/latest/download/ninja-${{ steps.platform.outputs.id }}.zip -o ninja.zip
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
+
+    - name: Install dump_syms
+      if: inputs.export-symbols == 'true' && steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+      shell: bash
+      run: |
+        curl -L https://github.com/mozilla/dump_syms/releases/latest/download/dump_syms-x86_64-unknown-linux-gnu.tar.xz -o dump_syms.tar.xz
+        xz -d dump_syms.tar.xz
+        tar -xf dump_syms.tar
+        echo "$GITHUB_WORKSPACE/dump_syms-x86_64-unknown-linux-gnu" >> $GITHUB_PATH
     
     - name: Fix Ubuntu weirdness
       shell: bash
@@ -254,6 +267,14 @@ runs:
 
         for file in $(find ./build -name *.geode); do
           cp $file "${{ github.workspace }}/output"
+          if [ ${{ steps.platform.outputs.id }} = "linux" ] && [ "${{ inputs.export-symbols }}" = "true" ]; then
+            if [ ${{ steps.platform.outputs.target_id }} = "android32" ] || [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
+              SO_FILE_NAME="$(basename $file .geode).${{ steps.platform.outputs.target_id }}.so"
+              if [ -f "./build/$SO_FILE_NAME" ]; then
+                dump_syms ./build/$SO_FILE_NAME -o "${{ github.workspace }}/output/$SO_FILE_NAME.sym"
+              fi
+            fi
+          fi
         done
 
         if [ ${{ steps.platform.outputs.id }} = "win" ]; then
@@ -282,3 +303,4 @@ runs:
         path: |
           ${{ steps.build.outputs.output }}/*.geode
           ${{ steps.build.outputs.output }}/*.pdb
+          ${{ steps.build.outputs.output }}/*.sym
