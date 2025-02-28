@@ -31,13 +31,13 @@ inputs:
     required: false
     default: false
   target:
-    description: Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
+    description: Geode target to build for. Can be either "Win64", "MacOS", "iOS", "Android32" or "Android64".
     required: false
     default: ""
   bindings:
     description: What repository to use for bindings. Must be in the format "user/repo"
     required: false
-    default: "geode-sdk/bindings"
+    default: "geode-catgirls/bindings"
   bindings-ref:
     description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
     required: false
@@ -62,6 +62,10 @@ inputs:
     description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
+  gh-pat:
+    description: GitHub personal access token for downloading stuffs
+    required: false
+    default: ""
 
 outputs:
   build-output:
@@ -100,6 +104,8 @@ runs:
           OUTPUT_ID=win
         elif [ "$TARGET" = "MacOS" ]; then
           OUTPUT_ID=mac
+        elif [ "$TARGET" = "iOS" ]; then
+          OUTPUT_ID=ios
         fi
 
         echo "id=$ID" >> $GITHUB_OUTPUT
@@ -176,7 +182,7 @@ runs:
     #   if: steps.platform.outputs.id == 'mac'
 
     - name: Download bindings repo
-      if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
+      if: inputs.bindings != 'geode-catgirls/bindings' || inputs.bindings-ref != ''
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.bindings }}
@@ -184,14 +190,36 @@ runs:
         path: bindings-repo
 
     - name: Setup bindings enviroment
-      if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
+      if: inputs.bindings != 'geode-catgirls/bindings' || inputs.bindings-ref != ''
       shell: bash
       run: echo "GEODE_BINDINGS_REPO_PATH=$GITHUB_WORKSPACE/bindings-repo" >> $GITHUB_ENV
 
     - name: Setup CLI
-      uses: geode-sdk/cli/.github/actions/setup@main
+      #uses: geode-sdk/cli/.github/actions/setup@main
+      uses: geode-catgirls/build-geode-mod/ios-cli-setup@main
       with:
         version: ${{ inputs.cli }}
+        platform: ${{ steps.platform.outputs.target_id }}
+
+    - name: Download Geode SDK
+      if: steps.platform.outputs.target_id == 'ios'
+      uses: actions/checkout@v4
+      with:
+        repository: geode-catgirls/geode-cgs
+        token: ${{ inputs.gh-pat }}
+        ref: nightly
+        path: geode-sdk-clone
+
+    - name: Download binaries
+      if: steps.platform.outputs.target_id == 'ios'
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: geode-catgirls/geode-cgs
+        token: ${{ inputs.gh-pat }}
+        tag: nightly
+        filename: geode-*-ios.zip
+        out-file-path: ${{ github.workspace }}/geode-sdk-clone/bin/nightly
+        extract: true
 
     - name: Setup Geode SDK
       shell: bash
@@ -203,7 +231,9 @@ runs:
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
 
-        geode sdk install "${{ github.workspace }}/geode-sdk-clone"
+        if [ "${{ steps.platform.outputs.target_id }}" != "ios" ]; then
+          geode sdk install "${{ github.workspace }}/geode-sdk-clone"
+        fi
 
         # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
@@ -219,13 +249,27 @@ runs:
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print | sort -r | head -n 1)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
-          geode sdk update "$TARGET_GEODE_VERSION"
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
+          echo "!! WARNING !!"
+          echo "building against NIGHTLY as WORKAROUND"
+          if [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
+            echo "doin ios stuff and already installed meow meow, editing geode cli config"
+            echo "Old Config: $(cat /Users/Shared/Geode/config.json)"
+            echo $(cat /Users/Shared/Geode/config.json | jq '."sdk-nightly" = true | ."sdk-version" = null') > /Users/Shared/Geode/config.json
+            echo "New Config: $(cat /Users/Shared/Geode/config.json)"
+          else
+            geode sdk update nightly
+            geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
+          fi
+
+          #uncomment these when geode ios releases:
+          # geode sdk update "$TARGET_GEODE_VERSION"
+          # geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
         else
           geode sdk update ${{ inputs.sdk }}
+          # because it was still getting old old old binaries
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
-        
+
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
@@ -243,10 +287,14 @@ runs:
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_STL=c++_shared -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_STL=c++_shared -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
+        elif [ ${{ steps.platform.outputs.target_id }} = "ios" ]; then
+          echo "HAIIIIIIIIIIIIIIIIIIIIIII I RAN MEOW MEOW"
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 -DCMAKE_SYSTEM_NAME=iOS -DGEODE_DONT_BUILD_TEST_MODS=ON"
         fi
         if [ "${{ inputs.use-lto }}" = "true" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON"
         fi
+
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
