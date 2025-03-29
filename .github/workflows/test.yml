@@ -41,6 +41,7 @@ jobs:
         uses: ./
         with:
           gh-pat: ${{ secrets.GH_PAT }} 
+          cli: nightly
           # sdk: nightly
           build-config: RelWithDebInfo
           path: textureldr
