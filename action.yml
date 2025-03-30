@@ -242,21 +242,15 @@ runs:
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
 
+          # remove this if clause after geode ios releases upstream
           if [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
-            echo "!! WARNING !!"
-            echo "building against NIGHTLY as WORKAROUND"
-            echo "doin ios stuff and already installed meow meow, editing geode cli config"
-            echo "Old Config: $(cat /Users/Shared/Geode/config.json)"
+            echo "!! WARNING !! - building against NIGHTLY as WORKAROUND"
             echo $(cat /Users/Shared/Geode/config.json | jq '."sdk-nightly" = true | ."sdk-version" = null') > /Users/Shared/Geode/config.json
-            echo "New Config: $(cat /Users/Shared/Geode/config.json)"
           else
-            geode sdk update nightly
-            geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
+            geode sdk update "$TARGET_GEODE_VERSION"
+            geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
           fi
 
-          #uncomment these when geode ios releases:
-          # geode sdk update "$TARGET_GEODE_VERSION"
-          # geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
         else
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
