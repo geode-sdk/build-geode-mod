@@ -62,10 +62,6 @@ inputs:
     description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
     default: true
-  gh-pat:
-    description: GitHub personal access token for downloading stuffs
-    required: false
-    default: ""
 
 outputs:
   build-output:
@@ -203,8 +199,7 @@ runs:
       if: steps.platform.outputs.target_id == 'ios'
       uses: actions/checkout@v4
       with:
-        repository: geode-catgirls/geode-cgs
-        token: ${{ inputs.gh-pat }}
+        repository: geode-catgirls/geode
         ref: nightly
         path: geode-sdk-clone
 
@@ -212,8 +207,7 @@ runs:
       if: steps.platform.outputs.target_id == 'ios'
       uses: robinraju/release-downloader@v1
       with:
-        repository: geode-catgirls/geode-cgs
-        token: ${{ inputs.gh-pat }}
+        repository: geode-catgirls/geode
         tag: nightly
         filename: geode-*-ios.zip
         out-file-path: ${{ github.workspace }}/geode-sdk-clone/bin/nightly
@@ -267,7 +261,7 @@ runs:
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
-
+        
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
