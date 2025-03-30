@@ -195,14 +195,6 @@ runs:
       with:
         version: ${{ inputs.cli }}
 
-    - name: Download Geode SDK
-      if: steps.platform.outputs.target_id == 'ios'
-      uses: actions/checkout@v4
-      with:
-        repository: geode-catgirls/geode
-        ref: nightly
-        path: geode-sdk-clone
-
     - name: Download binaries
       if: steps.platform.outputs.target_id == 'ios'
       uses: robinraju/release-downloader@v1
@@ -225,6 +217,9 @@ runs:
 
         if [ "${{ steps.platform.outputs.target_id }}" != "ios" ]; then
           geode sdk install "${{ github.workspace }}/geode-sdk-clone"
+        else
+          echo "cloning diff geode"
+          git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
         fi
 
         # silly github actions wont refresh the env
