@@ -211,8 +211,7 @@ runs:
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
-        if [ "${{ inputs.sdk }}" == "nightly" ] || [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
-          [ "${{ steps.platform.outputs.target_id }}" == "ios" ] && echo "WARNING - building for NIGHTLY as workaround!!"
+        if [ "${{ inputs.sdk }}" == "nightly" ]; then
           geode sdk update nightly
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         elif [ "${{ inputs.sdk }}" == "latest" ]; then
