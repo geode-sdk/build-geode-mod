@@ -205,16 +205,7 @@ runs:
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
 
-        if [ "${{ steps.platform.outputs.target_id }}" != "ios" ]; then
-          geode sdk install "${{ github.workspace }}/geode-sdk-clone"
-        else
-          echo "cloning ios geode"
-          git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
-          mkdir -p "${{ github.workspace }}/geode-sdk-clone/bin"
-          dl_url=$(curl -s https://api.github.com/repos/geode-catgirls/geode/releases -H "Authorization: Bearer ${{ github.token }}" | jq '.[] | select(.tag_name=="nightly").assets[] | select(.name|endswith("-ios.zip")).browser_download_url' -r)
-          echo "nightly dl url: $dl_url"
-          curl -L "$dl_url" -o "geode-ios.zip" && unzip "geode-ios.zip" -d "${{ github.workspace }}/geode-sdk-clone/bin/nightly" && rm "geode-ios.zip"
-        fi
+        geode sdk install "${{ github.workspace }}/geode-sdk-clone"
 
         # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
