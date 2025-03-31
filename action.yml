@@ -225,7 +225,8 @@ runs:
           # remove this if clause after geode ios releases upstream
           if [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
             echo "!! WARNING !! - building against NIGHTLY as WORKAROUND"
-            echo $(cat /Users/Shared/Geode/config.json | jq '."sdk-nightly" = true | ."sdk-version" = null') > /Users/Shared/Geode/config.json
+            geode sdk update nightly
+            geode sdk install-binaries --platform ios
           else
             geode sdk update "$TARGET_GEODE_VERSION"
             geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
