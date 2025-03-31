@@ -211,9 +211,7 @@ runs:
           echo "cloning ios geode"
           git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
           mkdir -p "${{ github.workspace }}/geode-sdk-clone/bin"
-          stupid=$(curl -s https://api.github.com/repos/geode-catgirls/geode/releases | jq '.[]')
-          echo "$stupid"
-          dl_url=$(curl -s https://api.github.com/repos/geode-catgirls/geode/releases | jq '.[] | select(.tag_name=="nightly").assets[] | select(.name|endswith("-ios.zip")).browser_download_url' -r)
+          dl_url=$(curl -s https://api.github.com/repos/geode-catgirls/geode/releases -H "Authorization: Bearer ${{ github.token }}" | jq '.[] | select(.tag_name=="nightly").assets[] | select(.name|endswith("-ios.zip")).browser_download_url' -r)
           echo "nightly dl url: $dl_url"
           curl -L "$dl_url" -o "geode-ios.zip" && unzip "geode-ios.zip" -d "${{ github.workspace }}/geode-sdk-clone/bin/nightly" && rm "geode-ios.zip"
         fi
