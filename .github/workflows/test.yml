@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: geode-catgirls/nyaaldr
+          repository: geode-sdk/textureldr
           path: textureldr
 
       - name: Build the mod
