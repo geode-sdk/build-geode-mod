@@ -195,16 +195,6 @@ runs:
       with:
         version: ${{ inputs.cli }}
 
-    - name: Download binaries
-      if: steps.platform.outputs.target_id == 'ios'
-      uses: robinraju/release-downloader@v1
-      with:
-        repository: geode-catgirls/geode
-        tag: nightly
-        filename: geode-*-ios.zip
-        out-file-path: ${{ github.workspace }}/nightly-bin
-        extract: true
-
     - name: Setup Geode SDK
       shell: bash
       run: |
@@ -221,8 +211,12 @@ runs:
           echo "cloning diff geode"
           git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
           mkdir -p "${{ github.workspace }}/geode-sdk-clone/bin"
-          ls "${{ github.workspace }}/nightly-bin"
-          mv "${{ github.workspace }}/nightly-bin" "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
+          # dl nightly release binaries
+          releases=$(curl -s https://api.github.com/repos/geode-catgirls/geode/releases)
+          dl_url=$(echo "$releases" | jq '.[] | select(.tag_name=="nightly").assets[] | select(.name|endswith("-ios.zip")).browser_download_url' -r)
+          echo "nightly dl url: $dl_url"
+          curl -L "$dl_url" -o "geode-ios.zip"
+          unzip "geode-ios.zip" -d "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
         fi
 
         # silly github actions wont refresh the env
