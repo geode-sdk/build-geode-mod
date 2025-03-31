@@ -41,7 +41,7 @@ jobs:
         uses: ./
         with:
           cli: nightly
-          # sdk: nightly
+          sdk: nightly
           build-config: RelWithDebInfo
           path: textureldr
           combine: true
