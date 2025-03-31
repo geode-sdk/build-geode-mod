@@ -202,7 +202,7 @@ runs:
         repository: geode-catgirls/geode
         tag: nightly
         filename: geode-*-ios.zip
-        out-file-path: ${{ github.workspace }}/geode-sdk-clone/bin/nightly
+        out-file-path: ${{ github.workspace }}/nightly-bin
         extract: true
 
     - name: Setup Geode SDK
@@ -220,6 +220,8 @@ runs:
         else
           echo "cloning diff geode"
           git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
+          mkdir -p "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
+          mv "${{ github.workspace }}/nightly-bin" "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
         fi
 
         # silly github actions wont refresh the env
