@@ -211,7 +211,8 @@ runs:
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
         echo "GEODE_SDK=$GEODE_SDK" >> $GITHUB_ENV
 
-        if [ "${{ inputs.sdk }}" == "nightly" ]; then
+        if [ "${{ inputs.sdk }}" == "nightly" ] || [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
+          [ "${{ steps.platform.outputs.target_id }}" == "ios" ] && echo "WARNING - building for NIGHTLY as workaround!!"
           geode sdk update nightly
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         elif [ "${{ inputs.sdk }}" == "latest" ]; then
@@ -221,17 +222,8 @@ runs:
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print | sort -r | head -n 1)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
-
-          # remove this if clause after geode ios releases upstream
-          if [ "${{ steps.platform.outputs.target_id }}" == "ios" ]; then
-            echo "!! WARNING !! - building against NIGHTLY as WORKAROUND"
-            geode sdk update nightly
-            geode sdk install-binaries --platform ios
-          else
-            geode sdk update "$TARGET_GEODE_VERSION"
-            geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
-          fi
-
+          geode sdk update "$TARGET_GEODE_VERSION"
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION"
         else
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
