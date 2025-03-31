@@ -221,7 +221,7 @@ runs:
           echo "cloning diff geode"
           git clone https://github.com/geode-catgirls/geode -b nightly "${{ github.workspace }}/geode-sdk-clone"
           mkdir -p "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
-          mv "${{ github.workspace }}/nightly-bin" "${{ github.workspace }}/geode-sdk-clone/bin/nightly"
+          mv "${{ github.workspace }}/nightly-bin/*" "${{ github.workspace }}/geode-sdk-clone/bin/nightly/"
         fi
 
         # silly github actions wont refresh the env
