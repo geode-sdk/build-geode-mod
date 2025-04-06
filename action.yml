@@ -166,14 +166,14 @@ runs:
         tar -xf dump_syms.tar
         echo "$GITHUB_WORKSPACE/dump_syms-x86_64-unknown-linux-gnu" >> $GITHUB_PATH
     
-    - name: Fix Ubuntu weirdness
-      shell: bash
-      run: |
-        sudo apt install ninja-build &&
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test &&
-        sudo apt-get update &&
-        sudo apt-get install --only-upgrade libstdc++6
-      if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+    # - name: Fix Ubuntu weirdness
+    #   shell: bash
+    #   run: |
+    #     sudo apt install ninja-build &&
+    #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test &&
+    #     sudo apt-get update &&
+    #     sudo apt-get install --only-upgrade libstdc++6
+    #   if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
 
     # - name: Update LLVM (Windows)
     #   if: steps.platform.outputs.id == 'win'
