@@ -153,14 +153,14 @@ runs:
         7z x ninja.zip -o"$GITHUB_WORKSPACE/ninja"
         echo "$GITHUB_WORKSPACE/ninja" >> $GITHUB_PATH
     
-    - name: Fix Ubuntu weirdness
-      shell: bash
-      run: |
-        sudo apt install ninja-build &&
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test &&
-        sudo apt-get update &&
-        sudo apt-get install --only-upgrade libstdc++6
-      if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+    # - name: Fix Ubuntu weirdness
+    #   shell: bash
+    #   run: |
+    #     sudo apt install ninja-build &&
+    #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test &&
+    #     sudo apt-get update &&
+    #     sudo apt-get install --only-upgrade libstdc++6
+    #   if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
 
     # - name: Update LLVM (Windows)
     #   if: steps.platform.outputs.id == 'win'
