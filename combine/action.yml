@@ -73,9 +73,7 @@ runs:
           cp $FIRST out
         done
         # Copy the .pdb file from windows artifact if it exists
-        if [ -f "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" ]; then
-          cp "./artifacts/geode-build-win/$(basename $FIRST .geode).pdb" out
-        fi
+        cp ./artifacts/geode-build-win/*.pdb out/ || true
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v5
