@@ -43,6 +43,8 @@ jobs:
           cli: nightly
           sdk: nightly
           build-config: RelWithDebInfo
+          export-pdb: true
+          bundle-pdb: true
           path: textureldr
           export-pdb: true
           export-symbols: true
