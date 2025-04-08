@@ -74,6 +74,9 @@ runs:
         done
         # Copy the .pdb file from windows artifact if it exists
         cp ./artifacts/geode-build-win/*.pdb out/ || true
+        # Copy the .sym files from android artifacts if they exist
+        cp ./artifacts/geode-build-android32/*.sym out/ || true
+        cp ./artifacts/geode-build-android64/*.sym out/ || true
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v5

@@ -38,6 +38,10 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     bundle-pdb: ''
 
+    # Whether to export Breakpad symbols for Android builds. Not required.
+    # Default: false
+    export-symbols: ''
+
     # Path to the project which to build. Defaults to current directory.
     path: ''
 
