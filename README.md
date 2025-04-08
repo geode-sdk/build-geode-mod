@@ -103,6 +103,6 @@ Usually this is done using a matrix, and due to limitations on how much actions 
 
 To do this, make sure to set `combine: true` on the build action!
 
-## Building a mod on mac, android armv7 and armv8, windows, and then combining it
+## Building a mod on mac, ios, android armv7 and armv8, windows, and then combining it
 Full workflow: \
 https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml
