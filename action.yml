@@ -126,10 +126,10 @@ runs:
         tarBall: false
         zipBall: false
         out-file-path: "epic-sccache"
-      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant == 'sccache'
 
     - name: Setup custom sccache
-      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant != ''
+      if: steps.platform.outputs.id == 'mac' && inputs.ccache-variant == 'sccache'
       shell: bash
       run: |
         7z x "epic-sccache/sccache-*-x86_64-apple-darwin.zip" -o"epic-sccache"
