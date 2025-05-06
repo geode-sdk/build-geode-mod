@@ -9,7 +9,7 @@ on:
 env:
   test-mod-path: example-mod-test
   test-geode-nightly: false
-
+  # Line below makes IDEs with github actions intelisense or whatever its called in editors shut up about an unknown env variable
   geode-sdk-type: ''
 
 jobs:
