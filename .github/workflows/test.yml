@@ -41,6 +41,9 @@ jobs:
           os: windows-latest
         - name: macOS
           os: macos-latest
+        - name: iOS
+          os: macos-latest
+          target: iOS
         - name: Android32
           os: ubuntu-latest
           target: Android32
@@ -107,6 +110,9 @@ jobs:
           sdk: ${{ env.geode-sdk-type }}
           build-config: RelWithDebInfo
           path: ${{ env.test-mod-path }}
+          export-pdb: true
+          bundle-pdb: true
+          export-symbols: true
           combine: true
           target: ${{ matrix.config.target }}
 

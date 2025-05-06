@@ -33,6 +33,15 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
     # Default: false
     export-pdb: ''
 
+    # Whether to bundle PDB files into the .geode package. Not required.
+    # Requires SDK v4.2.0 and CLI v3.3.0 at minimum.
+    # Default: false
+    bundle-pdb: ''
+
+    # Whether to export Breakpad symbols for Android builds. Not required.
+    # Default: false
+    export-symbols: ''
+
     # Path to the project which to build. Defaults to current directory.
     path: ''
 
@@ -80,9 +89,11 @@ https://github.com/geode-sdk/build-geode-mod/tree/main/examples
   id: build
   with:
     build-config: RelWithDebInfo
+    # Export the pdb alongside the .geode file
+    export-pdb: true
     # Bundle the pdb inside the .geode file
     # Be warned, they can be quite big
-    export-pdb: true
+    bundle-pdb: true
 ```
 
 # Combine
@@ -92,6 +103,6 @@ Usually this is done using a matrix, and due to limitations on how much actions 
 
 To do this, make sure to set `combine: true` on the build action!
 
-## Building a mod on mac, android armv7 and armv8, windows, and then combining it
+## Building a mod on mac, ios, android armv7 and armv8, windows, and then combining it
 Full workflow: \
 https://github.com/geode-sdk/build-geode-mod/blob/main/examples/multi-platform.yml
