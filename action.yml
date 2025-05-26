@@ -182,6 +182,7 @@ runs:
 
     - name: Prepare xwin
       if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+      shell: bash
       run: |
         tar -xzf epic-xwin/xwin-*-x86_64-unknown-linux-musl.tar.gz -C epic-xwin
         mv epic-xwin/xwin-*-x86_64-unknown-linux-musl/xwin ./xwin
@@ -197,6 +198,7 @@ runs:
 
     - name: Download Windows headers
       if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win' && steps.xwin-cache.outputs.cache-hit != 'true'
+      shell: bash
       run: ./xwin --arch x86_64 --sdk-version 10.0.22621 --accept-license splat --include-debug-libs
 
     - name: Download clang-msvc-sdk toolchain
