@@ -201,12 +201,17 @@ runs:
       shell: bash
       run: ./xwin --arch x86_64 --sdk-version 10.0.22621 --accept-license splat --include-debug-libs
 
-    - name: Download clang-msvc-sdk toolchain
+    - name: Download clang-msvc-sdk
       if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
       uses: actions/checkout@v4
       with:
         repository: geode-sdk/clang-msvc-sdk
         path: clang-msvc-sdk
+
+    - name: Install Clang 19
+      run: |
+        sudo rm -f /var/lib/man-db/auto-update
+        sudo apt install -y clang-19 clang-tools-19 lld-19
 
     # - name: Fix Ubuntu weirdness
     #   shell: bash
@@ -310,11 +315,10 @@ runs:
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
         if [ "${{ steps.platform.outputs.id }}" = "linux" ] && [ "${{ steps.platform.outputs.target_id }}" = "win" ]; then
-          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake -DSPLAT_DIR=$GITHUB_WORKSPACE/.xwin-cache/splat -DHOST_ARCH=x86_64"
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake -DSPLAT_DIR=$GITHUB_WORKSPACE/.xwin-cache/splat -DHOST_ARCH=x86_64 -DLLVM_VER=19 -DCLANG_VER=19"
         else
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
         fi
-        clang-cl --version || true
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
