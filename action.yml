@@ -209,6 +209,8 @@ runs:
         path: clang-msvc-sdk
 
     - name: Install Clang 19
+      if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+      shell: bash
       run: |
         sudo rm -f /var/lib/man-db/auto-update
         sudo apt install -y clang-19 clang-tools-19 lld-19
