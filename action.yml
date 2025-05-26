@@ -169,6 +169,44 @@ runs:
         tar -xf dump_syms.tar
         echo "$GITHUB_WORKSPACE/dump_syms-x86_64-unknown-linux-gnu" >> $GITHUB_PATH
     
+    - name: Download xwin
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+      uses: robinraju/release-downloader@v1.12
+      with:
+        repository: Jake-Shadle/xwin
+        latest: true
+        fileName: xwin-*-x86_64-unknown-linux-musl.tar.gz
+        tarBall: false
+        zipBall: false
+        out-file-path: "epic-xwin"
+
+    - name: Prepare xwin
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+      run: |
+        tar -xzf epic-xwin/xwin-*-x86_64-unknown-linux-musl.tar.gz -C epic-xwin
+        mv epic-xwin/xwin-*-x86_64-unknown-linux-musl/xwin ./xwin
+        ./xwin --arch x86_64 --sdk-version 10.0.22621 --accept-license list
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+
+    - name: Setup xwin Cache
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+      id: xwin-cache
+      uses: actions/cache@v4
+      with:
+        path: .xwin-cache
+        key: xwin-win-v1-${{ hashFiles('.xwin-cache/**/*') }}
+
+    - name: Download Windows headers
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win' && steps.xwin-cache.outputs.cache-hit != 'true'
+      run: ./xwin --arch x86_64 --sdk-version 10.0.22621 --accept-license splat --include-debug-libs
+
+    - name: Download clang-msvc-sdk toolchain
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
+      uses: actions/checkout@v4
+      with:
+        repository: geode-sdk/clang-msvc-sdk
+        path: clang-msvc-sdk
+
     # - name: Fix Ubuntu weirdness
     #   shell: bash
     #   run: |
@@ -270,7 +308,12 @@ runs:
         if [ "${{ inputs.bundle-pdb }}" = "true" ] && [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
-        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
+        if [ "${{ steps.platform.outputs.id }}" = "linux" ] && [ "${{ steps.platform.outputs.target_id }}" = "win" ]; then
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake"
+        else
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+        fi
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.workspace }}/output"
