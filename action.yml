@@ -209,7 +209,7 @@ runs:
         path: clang-msvc-sdk
 
     - name: Install Clang 19
-      if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
+      if: steps.platform.outputs.id == 'linux' && steps.platform.outputs.target_id == 'win'
       shell: bash
       run: |
         sudo rm -f /var/lib/man-db/auto-update
