@@ -310,12 +310,11 @@ runs:
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
         if [ "${{ steps.platform.outputs.id }}" = "linux" ] && [ "${{ steps.platform.outputs.target_id }}" = "win" ]; then
-          SPLAT_DIR="${{ github.workspace }}/.xwin-cache/splat"
-          HOST_ARCH=x86_64
-          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl"
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake -DSPLAT_DIR=$GITHUB_WORKSPACE/.xwin-cache/splat -DHOST_ARCH=x86_64"
         else
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
         fi
+        clang-cl --version || true
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
         cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
