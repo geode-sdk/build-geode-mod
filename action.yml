@@ -313,7 +313,7 @@ runs:
         if [ "${{ inputs.use-lto }}" = "true" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON"
         fi
-        if [ "${{ inputs.bundle-pdb }}" = "true" ] && [ ${{ steps.platform.outputs.id }} = "win" ]; then
+        if [ "${{ inputs.bundle-pdb }}" = "true" ] && [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
         if [ "${{ steps.platform.outputs.id }}" = "linux" ] && [ "${{ steps.platform.outputs.target_id }}" = "win" ]; then
@@ -338,7 +338,7 @@ runs:
           fi
         done
 
-        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+        if [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
           if [ "${{ inputs.export-pdb }}" = "true" ]; then
             for file in $(find ./build -name *.pdb); do
               cp $file "${{ github.workspace }}/output"
