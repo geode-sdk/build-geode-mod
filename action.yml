@@ -178,13 +178,10 @@ runs:
     #     sudo apt-get install --only-upgrade libstdc++6
     #   if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
 
-    # - name: Update LLVM (Windows)
-    #   if: steps.platform.outputs.id == 'win'
-    #   shell: bash
-    #   run: |
-    #     curl -L https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/LLVM-17.0.6-win64.exe -o llvm-inst.exe
-    #     7z x llvm-inst.exe -ollvm bin/clang.exe bin/clang++.exe bin/lld-link.exe bin/llvm-rc.exe bin/*.dll lib/clang/*/include/*
-    #     echo "$GITHUB_WORKSPACE/llvm/bin" >> $GITHUB_PATH
+     - name: Update LLVM (Windows)
+       if: steps.platform.outputs.id == 'win'
+       shell: bash
+       run: choco upgrade llvm
 
     # - name: Install LLVM (MacOS)
     #   shell: bash
