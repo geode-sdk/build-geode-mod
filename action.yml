@@ -178,10 +178,10 @@ runs:
     #     sudo apt-get install --only-upgrade libstdc++6
     #   if: steps.platform.outputs.id == 'linux' && (steps.platform.outputs.target_id == 'android32' || steps.platform.outputs.target_id == 'android64')
 
-     - name: Update LLVM (Windows)
-       if: steps.platform.outputs.id == 'win'
-       shell: bash
-       run: choco upgrade llvm
+    - name: Update LLVM (Windows)
+      if: steps.platform.outputs.id == 'win'
+      shell: bash
+      run: choco upgrade llvm
 
     # - name: Install LLVM (MacOS)
     #   shell: bash
