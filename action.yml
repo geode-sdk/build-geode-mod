@@ -303,8 +303,8 @@ runs:
           for file in $(find ./build -name *.dbg); do
             cp $file "${{ github.workspace }}/output"
           done
-          for file in $(find ./build -name *.dSYM); do
-            cp $file "${{ github.workspace }}/output"
+          for dir in $(find ./build -name *.dSYM); do
+            cp -R $dir "${{ github.workspace }}/output"
           done
         fi
 
