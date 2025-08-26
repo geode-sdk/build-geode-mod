@@ -259,7 +259,7 @@ runs:
         mkdir -p $HOME/.cache
 
         NDK_PATH="/usr/local/lib/android/sdk/ndk/${{ inputs.android-ndk-version }}"
-        if [ -z "$NDK_PATH" ]; then
+        if [ "$NDK_PATH" = "" ]; then
           NDK_PATH="$ANDROID_NDK_LATEST_HOME"
         fi
 
