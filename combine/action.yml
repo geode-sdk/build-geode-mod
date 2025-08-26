@@ -77,6 +77,11 @@ runs:
         # Copy the .sym files from android artifacts if they exist
         cp ./artifacts/geode-build-android32/*.sym out/ || true
         cp ./artifacts/geode-build-android64/*.sym out/ || true
+        # Copy the other debug files from android and macos/ios
+        cp ./artifacts/geode-build-android32/*.dbg out/ || true
+        cp ./artifacts/geode-build-android64/*.dbg out/ || true
+        cp ./artifacts/geode-build-mac/*.dSYM out/ || true
+        cp ./artifacts/geode-build-ios/*.dSYM out/ || true
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
     - uses: geekyeggo/delete-artifact@v5
