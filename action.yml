@@ -296,18 +296,16 @@ runs:
           fi
         fi
 
-        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
-          if [ "${{ inputs.export-debug }}" = "true" ]; then
-            for file in $(find ./build -name *.pdb); do
-              cp $file "${{ github.workspace }}/output"
-            done
-            for file in $(find ./build -name *.dbg); do
-              cp $file "${{ github.workspace }}/output"
-            done
-            for file in $(find ./build -name *.dSYM); do
-              cp $file "${{ github.workspace }}/output"
-            done
-          fi
+        if [ "${{ inputs.export-debug }}" = "true" ]; then
+          for file in $(find ./build -name *.pdb); do
+            cp $file "${{ github.workspace }}/output"
+          done
+          for file in $(find ./build -name *.dbg); do
+            cp $file "${{ github.workspace }}/output"
+          done
+          for file in $(find ./build -name *.dSYM); do
+            cp $file "${{ github.workspace }}/output"
+          done
         fi
 
         OUTPUT_DIR="${{ github.workspace }}/output"
