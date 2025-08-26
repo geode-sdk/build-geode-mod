@@ -58,6 +58,10 @@ inputs:
     description: Whether to export PDB files for Windows builds. Defaults to false
     required: false
     default: false
+  export-debug:
+    description: Whether to export debug files for builds (.pdb for Windows, .dbg for Android, .dSYM for MacOS). Defaults to false
+    required: false
+    default: false
   use-lto:
     description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
     required: false
@@ -292,6 +296,20 @@ runs:
           fi
         fi
 
+        if [ ${{ steps.platform.outputs.id }} = "win" ]; then
+          if [ "${{ inputs.export-debug }}" = "true" ]; then
+            for file in $(find ./build -name *.pdb); do
+              cp $file "${{ github.workspace }}/output"
+            done
+            for file in $(find ./build -name *.dbg); do
+              cp $file "${{ github.workspace }}/output"
+            done
+            for file in $(find ./build -name *.dSYM); do
+              cp $file "${{ github.workspace }}/output"
+            done
+          fi
+        fi
+
         OUTPUT_DIR="${{ github.workspace }}/output"
         if [ ${{ steps.platform.outputs.id }} = "mac" ]; then
           OUTPUT_DIR=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$OUTPUT_DIR")
@@ -311,3 +329,5 @@ runs:
           ${{ steps.build.outputs.output }}/*.geode
           ${{ steps.build.outputs.output }}/*.pdb
           ${{ steps.build.outputs.output }}/*.sym
+          ${{ steps.build.outputs.output }}/*.dbg
+          ${{ steps.build.outputs.output }}/*.dSYM
