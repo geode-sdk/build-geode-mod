@@ -84,11 +84,6 @@ outputs:
     description: A folder containing the built .geode file(s)
     value: ${{ steps.build.outputs.output }}
 
-on:
-  workflow_call:
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 runs:  
   using: composite
   steps:
@@ -223,9 +218,10 @@ runs:
 
     - name: Setup Geode SDK
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
-        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
         echo "Gh token len: ${#GITHUB_TOKEN}"
         # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
