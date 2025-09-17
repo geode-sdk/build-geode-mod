@@ -84,10 +84,12 @@ outputs:
     description: A folder containing the built .geode file(s)
     value: ${{ steps.build.outputs.output }}
 
-runs:
-  secrets:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+on:
+  workflow_call:
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+runs:  
   using: composite
   steps:
     - name: Detect platform
