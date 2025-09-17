@@ -218,8 +218,6 @@ runs:
 
     - name: Setup Geode SDK
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
         # for windows
