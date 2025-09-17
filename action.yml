@@ -218,8 +218,11 @@ runs:
 
     - name: Setup Geode SDK
       shell: bash
+      secrets:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         export CLI_PROFILE="${{ github.workspace }}/cli-profile"
+        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
         # for windows
         mkdir -p "$CLI_PROFILE/geode/mods"
         # for mac
