@@ -153,14 +153,13 @@ runs:
       if: inputs.ccache-variant != ''
 
     - name: Setup CPM Cache
-      if: steps.platform.outputs.id != 'mac' # TODO: Restore after https://github.com/actions/runner/issues/449 is fixed.
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/cpm-cache
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
         restore-keys: |
           cpm-${{ steps.platform.outputs.target_id }}-v1-
-      if: ${{ inputs.use-cpm-cache == 'true' }}
+      if: ${{ inputs.use-cpm-cache == 'true' }} && steps.platform.outputs.id != 'mac' # TODO: Restore after https://github.com/actions/runner/issues/449 is fixed.
 
     - name: Install Ninja
       shell: bash
