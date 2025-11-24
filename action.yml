@@ -153,7 +153,7 @@ runs:
       if: inputs.ccache-variant != ''
 
     - name: Setup CPM Cache
-      if: inputs.use-cpm-cache == 'true' && steps.platform.outputs.id != 'mac' # TODO: Restore after https://github.com/actions/runner/issues/449 is fixed.
+      if: inputs.use-cpm-cache == 'true'
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/cpm-cache
