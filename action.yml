@@ -280,16 +280,12 @@ runs:
         if [ "${{ inputs.bundle-pdb }}" = "true" ] && [ ${{ steps.platform.outputs.id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
-        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
-
-        CMAKE_EXTRA_BUILD_ARGS=""
-        CCACHE_VARIANT="${{ inputs.ccache-variant }}"
-        if [ -n "$CCACHE_VARIANT" ]; then
-          CCACHE_PATH="$(which "$CCACHE_VARIANT")"
-          CMAKE_EXTRA_BUILD_ARGS="$CMAKE_EXTRA_BUILD_ARGS -DCMAKE_C_COMPILER_LAUNCHER=${CCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${CCACHE_PATH}"
+        if [ -n "${{ inputs.ccache-variant }}" ]; then
+          CCACHE_PATH="$(which "${{ inputs.ccache-variant }}")"
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER_LAUNCHER=${CCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${CCACHE_PATH}"
         fi
-        
-        cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }} $CMAKE_EXTRA_BUILD_ARGS
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
+        cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
 
         mkdir "${{ github.workspace }}/output"
 
