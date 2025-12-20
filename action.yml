@@ -326,6 +326,10 @@ runs:
         if [ "${{ inputs.bundle-pdb }}" = "true" ] && [ ${{ steps.platform.outputs.target_id }} = "win" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DGEODE_BUNDLE_PDB=ON"
         fi
+        if [ -n "${{ inputs.ccache-variant }}" ]; then
+          CCACHE_PATH="$(which "${{ inputs.ccache-variant }}")"
+          CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER_LAUNCHER=${CCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${CCACHE_PATH}"
+        fi
         if [ "${{ steps.platform.outputs.id }}" = "linux" ] && [ "${{ steps.platform.outputs.target_id }}" = "win" ]; then
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/clang-msvc-sdk/clang-cl-msvc.cmake -DSPLAT_DIR=$GITHUB_WORKSPACE/.xwin-cache/splat -DHOST_ARCH=x86_64 -DLLVM_VER=19 -DCLANG_VER=19"
         else
