@@ -285,7 +285,7 @@ runs:
           CMAKE_EXTRA_ARGS="$CMAKE_EXTRA_ARGS -DCMAKE_C_COMPILER_LAUNCHER=${CCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${CCACHE_PATH}"
         fi
         cmake -B build -DCMAKE_BUILD_TYPE=${{ inputs.build-config }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DGEODE_CODEGEN_CMAKE_ARGS="-DCMAKE_C_COMPILER=clang;-DCMAKE_CXX_COMPILER=clang++;-G Ninja" -G Ninja $CMAKE_EXTRA_ARGS -DGEODE_DONT_INSTALL_MODS=ON -DGEODE_TARGET_PLATFORM=${{ steps.platform.outputs.target }} ${{ inputs.configure-args }}
-        cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }}
+        cmake --build build --config ${{ inputs.build-config }} ${{ inputs.build-args }} --parallel
 
         mkdir "${{ github.workspace }}/output"
 
