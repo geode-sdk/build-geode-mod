@@ -274,7 +274,7 @@ runs:
         cd "${{ inputs.path }}"
         CMAKE_EXTRA_ARGS=""
         if [ ${{ steps.platform.outputs.target_id }} = "mac" ]; then
-          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF -DCMAKE_AR='/usr/bin/ar' -DCMAKE_RANLIB='/usr/bin/ranlib'"
+          CMAKE_EXTRA_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF -DCMAKE_AR='/usr/bin/ar' -DCMAKE_RANLIB='/usr/bin/ranlib'"
         elif [ ${{ steps.platform.outputs.target_id }} = "android32" ]; then
           CMAKE_EXTRA_ARGS="-DCMAKE_TOOLCHAIN_FILE=$NDK_PATH/build/cmake/android.toolchain.cmake -DANDROID_STL=c++_shared -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-${{ inputs.android-min-sdk }}"
         elif [ ${{ steps.platform.outputs.target_id }} = "android64" ]; then
