@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Download CLI
-      uses: robinraju/release-downloader@v1.10
+      uses: robinraju/release-downloader@v1.13
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}
@@ -34,10 +34,10 @@ runs:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         path: "${{ github.action_path }}/artifacts"
-    
+
     - name: Combine them
       shell: bash
       id: merge
@@ -84,31 +84,31 @@ runs:
         cp -R ./artifacts/geode-build-ios/*.dSYM out/ || true
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
 
-    - uses: geekyeggo/delete-artifact@v5
+    - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-win
           failOnError: false
-        
-    - uses: geekyeggo/delete-artifact@v5
+
+    - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-mac
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v5
+    - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-ios
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v5
+    - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android32
           failOnError: false
 
-    - uses: geekyeggo/delete-artifact@v5
+    - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
           name: geode-build-android64
