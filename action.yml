@@ -156,7 +156,7 @@ runs:
         echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
     - name: Setup sccache
-      uses: hendrikmuhs/ccache-action@v1.2.21
+      uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         variant: ${{ steps.platform.outputs.ccache_variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
@@ -164,7 +164,7 @@ runs:
 
     - name: Setup CPM Cache
       if: inputs.use-cpm-cache == 'true'
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: ${{ github.workspace }}/cpm-cache
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
@@ -210,7 +210,7 @@ runs:
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: ${{ inputs.bindings }}
         ref: ${{ inputs.bindings-ref }}
