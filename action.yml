@@ -134,7 +134,7 @@ runs:
 
     # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
-      uses: robinraju/release-downloader@v1
+      uses: robinraju/release-downloader@v1.13
       with:
         repository: cgytrus/sccache
         latest: true
