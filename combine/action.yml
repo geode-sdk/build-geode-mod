@@ -21,8 +21,6 @@ runs:
   steps:
     - name: Download CLI
       uses: robinraju/release-downloader@v1
-      env:
-        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # fixes Node.js 24 warning
       with:
         repository: geode-sdk/cli
         latest: ${{ inputs.cli == 'latest' }}

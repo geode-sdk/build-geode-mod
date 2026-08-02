@@ -135,8 +135,6 @@ runs:
     # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
       uses: robinraju/release-downloader@v1
-      env:
-        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # fixes Node.js 24 warning
       with:
         repository: cgytrus/sccache
         latest: true
