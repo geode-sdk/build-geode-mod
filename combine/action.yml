@@ -87,29 +87,10 @@ runs:
     - uses: geekyeggo/delete-artifact@v6
       if: ${{ inputs.delete-artifacts }}
       with:
-          name: geode-build-win
-          failOnError: false
-
-    - uses: geekyeggo/delete-artifact@v6
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-mac
-          failOnError: false
-
-    - uses: geekyeggo/delete-artifact@v6
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-ios
-          failOnError: false
-
-    - uses: geekyeggo/delete-artifact@v6
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-android32
-          failOnError: false
-
-    - uses: geekyeggo/delete-artifact@v6
-      if: ${{ inputs.delete-artifacts }}
-      with:
-          name: geode-build-android64
+          name: |
+            geode-build-win
+            geode-build-mac
+            geode-build-ios
+            geode-build-android32
+            geode-build-android64
           failOnError: false
