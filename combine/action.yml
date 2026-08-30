@@ -10,6 +10,14 @@ inputs:
     description: Whether to delete temporary artifacts left by the build action.
     required: false
     default: true
+  zstd:
+    description: Whether to use zstd compression when merging the output .geode files.
+    required: false
+    default: false
+  optimize-pngs:
+    description: Whether to recompress PNGs during merging to reduce file size.
+    required: false
+    default: false
 
 outputs:
   build-output:
@@ -45,6 +53,16 @@ runs:
         cd "${{ github.action_path }}"
         chmod +x ./geode
         mkdir out
+
+        # add --zstd and --optimize-pngs flags
+        MERGE_FLAGS=""
+        if [ "${{ inputs.zstd }}" = "true" ]; then
+          MERGE_FLAGS="$MERGE_FLAGS --zstd"
+        fi
+        if [ "${{ inputs.optimize-pngs }}" = "true" ]; then
+          MERGE_FLAGS="$MERGE_FLAGS --optimize-pngs"
+        fi
+
         MODS=$(find . -name *.geode -type f -printf "%f\n" | sort -u)
         for mod in $MODS; do
           echo "Merging $mod"
@@ -68,7 +86,7 @@ runs:
           # why does it merge into the first one instead of just an output..
           FIRST="${ARG_LIST[0]}"
           if [ ${#ARG_LIST[@]} != 1 ]; then
-            geode package merge $PACKAGE_ARGS
+            geode package merge $MERGE_FLAGS $PACKAGE_ARGS
           fi
           cp $FIRST out
         done
