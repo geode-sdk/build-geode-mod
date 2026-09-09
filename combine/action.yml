@@ -17,7 +17,7 @@ inputs:
   optimize-pngs:
     description: Whether to recompress PNGs during merging to reduce file size.
     required: false
-    default: false
+    default: true
 
 outputs:
   build-output:
