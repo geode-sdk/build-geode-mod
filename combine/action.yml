@@ -90,6 +90,7 @@ runs:
         done
         # Copy debug files if present
         find ./artifacts -type f -name '*.pdb' -exec cp {} out/ \;
+        find ./artifacts -type f -name '*.sym' -exec cp {} out/ \;
         find ./artifacts -type f -name '*.dbg' -exec cp {} out/ \;
         find ./artifacts -type d -name '*.dSYM' -exec cp -R {} out/ \;
         echo "output=$(realpath out)" >> $GITHUB_OUTPUT
