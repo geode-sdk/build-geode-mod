@@ -134,7 +134,7 @@ runs:
 
     # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
-      uses: robinraju/release-downloader@v1.9
+      uses: robinraju/release-downloader@v1.13
       with:
         repository: cgytrus/sccache
         latest: true
@@ -154,7 +154,7 @@ runs:
         echo "SCCACHE_CACHE_MULTIARCH=1" >> $GITHUB_ENV
 
     - name: Setup sccache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         variant: ${{ steps.platform.outputs.ccache_variant }}
         key: ${{ steps.platform.outputs.target_id }}-v1
@@ -162,7 +162,7 @@ runs:
 
     - name: Setup CPM Cache
       if: inputs.use-cpm-cache == 'true'
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ github.workspace }}/cpm-cache
         key: cpm-${{ steps.platform.outputs.target_id }}-v1-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
@@ -254,7 +254,7 @@ runs:
 
     - name: Download bindings repo
       if: inputs.bindings != 'geode-sdk/bindings' || inputs.bindings-ref != ''
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: ${{ inputs.bindings }}
         ref: ${{ inputs.bindings-ref }}
@@ -302,7 +302,7 @@ runs:
           geode sdk update ${{ inputs.sdk }}
           geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }}
         fi
-        
+
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
         echo "CPM_SOURCE_CACHE=$CPM_CACHE" >> $GITHUB_ENV
 
@@ -314,7 +314,8 @@ runs:
 
         NDK_PATH="/usr/local/lib/android/sdk/ndk/${{ inputs.android-ndk-version }}"
         if [ "${{ inputs.android-ndk-version }}" = "" ]; then
-          NDK_PATH="$ANDROID_NDK_LATEST_HOME"
+          # NDK_PATH="$ANDROID_NDK_LATEST_HOME"
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/29.0.14206865
         fi
 
         cd "${{ inputs.path }}"
@@ -392,7 +393,7 @@ runs:
 
     - name: Upload artifacts
       if: ${{ inputs.combine == 'true' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: "geode-build-${{ steps.platform.outputs.target_id }}"
         path: |
