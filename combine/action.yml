@@ -13,7 +13,7 @@ inputs:
   zstd:
     description: Whether to use zstd compression when merging the output .geode files.
     required: false
-    default: false
+    default: true
   optimize-pngs:
     description: Whether to recompress PNGs during merging to reduce file size.
     required: false
