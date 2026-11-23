@@ -3,7 +3,7 @@ description: Builds a Geode mod
 
 inputs:
   sdk:
-    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release
+    description: Which version of the SDK to use, defaults to latest release. Set to 'given' to use the version specified in mod.json, 'nightly' for latest commit, 'latest' for latest release.
     required: false
     default: given
   cli:
@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ""
   build-config:
-    description: Which build configuration to use. Defaults to Release
+    description: Which build configuration to use. Defaults to Release.
     required: false
     default: Release
   path:
@@ -35,15 +35,15 @@ inputs:
     required: false
     default: ""
   bindings:
-    description: What repository to use for bindings. Must be in the format "user/repo"
+    description: What repository to use for bindings. Must be in the format "user/repo".
     required: false
     default: "geode-sdk/bindings"
   bindings-ref:
-    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch
+    description: Which commit/branch to use for bindings. Defaults to latest commit in main branch.
     required: false
     default: ""
   android-min-sdk:
-    description: The android min SDK version to target. Defaults to 23
+    description: The android min SDK version to target. Defaults to 23.
     required: false
     default: 23
   android-ndk-version:
@@ -51,31 +51,31 @@ inputs:
     required: false
     default: ""
   ccache-variant:
-    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache on Windows and Android, empty otherwise
+    description: The ccache variant to use (empty, ccache or sccache). Defaults to sccache on Windows and Android, empty otherwise.
     required: false
     default: default
   use-cpm-cache:
-    description: Whether to cache CPM sources. Defaults to true
+    description: Whether to cache CPM sources. Defaults to true.
     required: false
     default: true
   export-pdb:
-    description: Whether to export PDB files for Windows builds. Defaults to false
+    description: Whether to export PDB files for Windows builds. Defaults to false.
     required: false
     default: false
   export-debug:
-    description: Whether to export debug files for builds (.pdb for Windows, .dbg for Android, .dSYM for MacOS). Defaults to false
+    description: Whether to export debug files for builds (.pdb for Windows, .dbg for Android, .dSYM for MacOS). Defaults to false.
     required: false
     default: false
   use-lto:
-    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true
+    description: Whether to use LTO (Link Time Optimization) via the CMAKE_INTERPROCEDURAL_OPTIMIZATION flag, improving build size. Defaults to true.
     required: false
     default: true
   bundle-pdb:
-    description: Whether to bundle PDB files into the .geode package. Requires SDK v4.2.0 and CLI v3.3.0 at minimum. Defaults to false
+    description: Whether to bundle PDB files into the .geode package. Requires SDK v4.2.0 and CLI v3.3.0 at minimum. Defaults to false.
     required: false
     default: false
   export-symbols:
-    description: Whether to export Breakpad symbols for Android builds. Defaults to false
+    description: Whether to export Breakpad symbols for Android builds. Defaults to false.
     required: false
     default: false
 
