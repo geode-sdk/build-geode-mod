@@ -7,67 +7,88 @@ If you're just here to copy paste the action, look at the examples folder: \
 https://github.com/geode-sdk/build-geode-mod/tree/main/examples
 
 # Usage
+
+For more notes on some options, see the descriptions in the [workflow](action.yml).
 ```yml
 - uses: geode-sdk/build-geode-mod@main
   with:
-    # Which version of the SDK to use.
-    # Set to 'nightly' for latest commit, 'latest' for latest release
-    # Default: latest
+    # Which version of the SDK to use. Set to "nightly" for latest commit, "latest" for latest release, "given" for the version in the mod.json.
+    # Default: given
     sdk: ''
 
     # Which CLI version to use.
     # Default: latest
     cli: ''
 
-    # Extra arguments passed to CMake when configuring. Not required.
+    # Extra arguments passed to CMake when configuring.
     configure-args: ''
 
-    # Extra arguments passed to CMake when building. Not required.
+    # Extra arguments passed to CMake when building.
     build-args: ''
 
     # Which build configuration to use.
     # Default: Release
     build-config: ''
 
-    # Whether to export PDB files for Windows builds. Not required.
-    # Default: false
-    export-pdb: ''
-
-    # Whether to bundle PDB files into the .geode package. Not required.
-    # Requires SDK v4.2.0 and CLI v3.3.0 at minimum.
-    # Default: false
-    bundle-pdb: ''
-
-    # Whether to export Breakpad symbols for Android builds. Not required.
-    # Default: false
-    export-symbols: ''
-
-    # Path to the project which to build. Defaults to current directory.
+    # Path to the project which to build.
+    # Default: Current directory (./)
     path: ''
 
     # Set this to true if you plan on merging .geode files later. See the README for more info.
     # Default: false
     combine: ''
 
-    # Geode target to build for. Can be either "Win64", "MacOS", "Android32" or "Android64".
-    # Defaults to what is appropriate for the current platform, so:
-    # Defaults to Win64 on windows runners
-    # Defaults to MacOS on macOS runners
-    # Defaults to Android64 on linux runners
+    # Geode target to build for. Can be either "Win64", "MacOS", "iOS", "Android32" or "Android64".
+    # Default: What is appropriate for the current platform, so:
+    #  - Win64 on Windows runners
+    #  - MacOS on MacOS runners
+    #  - Android64 on Linux runners
     target: ''
 
-    # What repository to use for bindings. Must be in the format "user/repo". Not required.
+    # What repository to use for bindings. Must be in the format "user/repo".
+    # Default: geode-sdk/bindings
     bindings: ''
 
-    # Which commit/branch to use for bindings. Defaults to latest commit in main branch. Not required.
+    # Which commit/branch to use for bindings.
+    # Default: Latest commit on the main branch
     bindings-ref: ''
 
-    # The android min SDK version to target. Defaults to 23. Not required.
+    # The android min SDK version to target.
+    # Default: 23
     android-min-sdk: ''
+
+    # Version of the Android NDK to use.
+    # Default: Latest version
+    android-ndk-version: ''
+
+    # The ccache variant to use (empty, ccache or sccache).
+    # Default: sccache on Windows and Android, empty otherwise
+    android-ndk-version: ''
+
+    # Whether to cache CPM sources.
+    # Default: true
+    use-cpm-cache: ''
+
+    # Whether to export PDB files for Windows builds.
+    # Default: false
+    export-pdb: ''
+
+    # Whether to export debug files for builds (.pdb for Windows, .dbg for Android, .dSYM for MacOS).
+    # Default: false
+    export-debug: ''
 
     # Whether to use Link Time Optimization, improving build size at the cost of build time.
     # Default: true
     use-lto: ''
+
+    # Whether to bundle PDB files into the .geode package.
+    # Requires SDK v4.2.0 and CLI v3.3.0 at minimum.
+    # Default: false
+    bundle-pdb: ''
+
+    # Whether to export Breakpad symbols for Android builds.
+    # Default: false
+    export-symbols: ''
 ```
 
 # Examples
